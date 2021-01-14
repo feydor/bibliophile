@@ -1,0 +1,57 @@
+block variables
+
+doctype html
+html(lang="en")
+  head
+    <!-- Basic Page Needs -->
+    <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    meta(charset="utf-8")
+    meta(
+      name="viewport",
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    )
+
+    <!-- Favicon -->
+    <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    link(rel="shortcut icon", href="favicon.ico", type="image/x-icon")
+
+    <!-- CSS
+    <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    link(
+      rel="stylesheet",
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css",
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm",
+      crossorigin="anonymous"
+    )
+    link(rel="stylesheet", href="stylesheets/style.css")
+
+    <!-- Font
+    <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    link(
+      href="https://fonts.googleapis.com/css?family=Roboto",
+      rel="stylesheet",
+      type="text/css"
+    )
+    link(
+      rel="stylesheet",
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    )
+
+    title virtual-library-login-portal: #{title}
+  body
+    .top-bar.d-flex.flex-column.flex-md-row.align-items-center.p-3.px-md-4.mb-3.bg-white.border-bottom.box-shadow
+      h5.my-0.mr-md-auto.font-weight-normal
+        a(href="/", title="Expresso") virtual-library-login-portal
+      nav.my-2.my-md-0.mr-md-3
+        a.p-2.text-dark(href="/", title="Home") Home
+
+        if user == undefined
+          a.p-2.text-dark(href="/users/login") Log In / Register
+        else
+          a.p-2.text-dark(href="/dashboard") Dashboard
+          a.p-2.text-dark(href="/users/logout") Logout
+    .container
+      block content
+
+    footer.
+      Built with #[a(href="https://expressjs.com/") Express.js], login powered by #[a(href="https://developer.okta.com/") Okta].
