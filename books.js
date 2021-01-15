@@ -12,22 +12,33 @@ const dbcon = require("./db");
 /////////////////////
 
 // GET /books
-// returns an array of all book objects
+// Assumes ./auth.js/addUser middleware is ran before this endpoint (done in ./app.js)
+// returns an array of all book objects for the current user
 router.get("/", (req, res) => {
+  if (!req.user) {
+    throw console.error("addUser middleware not running");
+  }
+  
   let books = [];
-  dbcon.query("SELECT * FROM books", (err, rows) => {
-    if (err) throw err;
-
-    //console.log("Data received from Db:");
-    //console.log(rows);
-    //console.log(rows.map(row => `${row.author} wrote ${row.title}.`));
-    books = rows.map((row) => {
-      // populate book object based on row's key and value
-      let book = {};
-      Object.entries(row).forEach(([key, value]) => {
-        book[key] = value;
-      });
-      return book;
+  let query = `SELECT * FROM books INNER JOIN library ON books.id = library.bookid
+              INNER JOIN users ON users.id = library.userid where users.username = ?;`;
+  dbcon.execute(query, [req.user.profile.login],
+  function(err, results, fields) {
+    if (err) throw console.error(err);
+    // results contains rows returned by server
+    //console.log(results);
+    // fields contains extra meta data about results, if available
+    //console.log(fields);
+    
+    // TODO: populate books array with book objects with variable properties
+    // For now, only return title, author, subject, publisher, date
+    books = results.map((row) => {
+      return {
+        title: row.title,
+        author: row.author,
+        subject: row.subject,
+        coverurl: row.coverurl
+      };
     });
 
     console.log(books);

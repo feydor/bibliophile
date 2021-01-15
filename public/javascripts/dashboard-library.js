@@ -208,15 +208,14 @@ window.addEventListener("load", () => {
 
   // get booklist from server
   getBookList().then((data) => {
-    console.log(data.books);
-    // TODO: correct isbn10 in mysql
-    data.books.forEach((book) => {
-      let isbn = String(book.isbn10);
-      while (isbn.length < 10) {
-        isbn = "0" + isbn.slice(0);
-      }
-      book.isbn10 = isbn;
-    });
+    //console.log(data.books);
+    
+    // if data.books is empty, render the add books form
+    //console.log(data.books.length);
+    if (data.books.length === 0) {
+      FORMNODE.style.display = "none";
+      ADDBUTTON.style.display = "";
+    }
 
     BookList = data.books;
     renderBookList();
