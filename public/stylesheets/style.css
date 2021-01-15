@@ -1,6 +1,34 @@
 body {
-  padding: 50px;
+  padding: 15px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+}
+
+#list-view, #gallery-view {
+    margin: auto;
+}
+
+#view-selectors {
+    margin-bottom: 10px;
+}
+
+#cancelButton {
+    margin-left: 5px;
+    margin: auto;
+}
+
+#submitButton {
+  margin: auto;
+}
+
+.dark-mode {
+    background-color: #121212;
+    color: white;
+    font-weight: 350;
+}
+
+.dark-mode input {
+    color: black;
 }
 
 a {

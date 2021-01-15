@@ -4,9 +4,28 @@ block variables
   - var title = 'Dashboard';
 
 block content
-  h2.text-center Dashboard
 
   .row
-    .offset-sm-2.col-sm-8
+    .col-md-8.offset-md-2
+      h2.text-center Dashboard
       .jumbotron.text-center.
         Welcome to your dashboard page, #{user.profile.firstName}.
+
+  .row
+    .col-md-8.offset-md-2.text-center
+    
+      h3.text-center Virtual Library
+
+      .view-selectors
+        button(id="list-view" class="fa fa-list view-selected")
+        button(id="gallery-view" class="fa fa-th")
+
+      #booklist-container
+
+      .utility-buttons
+        form(id="add-book-form")
+        button(id="add-book-button" class="fa fa-plus")
+
+    <!-- JS
+    <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    script(src="javascripts/dashboard-library.js")
