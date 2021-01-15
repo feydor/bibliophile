@@ -5,7 +5,7 @@ const path = require('path');
 const logger = require('morgan');
 const session = require('express-session');
 
-// import auth module
+// import other custom modules
 const auth = require('./auth');
 
 // TODO: switch between production and debug
@@ -17,6 +17,7 @@ if (process.env.NODE_ENV !== "production") {
 var publicRouter = require('./routes/public');
 var dashboardRouter = require('./routes/dashboard');
 var usersRouter = require('./routes/users');
+var booksRouter = require('./books')
 
 var app = express();
 
@@ -43,6 +44,7 @@ app.use(auth.addUser);
 app.use('/', publicRouter);
 app.use('/dashboard', auth.loginRequired, dashboardRouter);
 app.use('/users', usersRouter);
+app.use('/books', booksRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
