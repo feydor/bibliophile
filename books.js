@@ -21,7 +21,7 @@ router.get("/", (req, res) => {
   
   let books = [];
   let query = `SELECT * FROM books INNER JOIN library ON books.id = library.bookid
-              INNER JOIN users ON users.id = library.userid where users.username = ?;`;
+              INNER JOIN users ON users.id = library.userid WHERE users.username = ?;`;
   dbcon.execute(query, [req.user.profile.login],
   function(err, results, fields) {
     if (err) throw console.error(err);
@@ -76,6 +76,10 @@ router.get("/", (req, res) => {
 //
 // Finally an SQL entry is made
 router.post("/", function (req, res) {
+  if (!req.user) {
+    throw console.error("addUser middleware not running");
+  }
+
   // Parse req.body, instantiate var 'globals'
   let book = {
     title: req.body.title,

@@ -322,7 +322,7 @@ ADDBUTTON.addEventListener("click", () => {
  *
  * @return {number} 1 for success, 0 for failure.
  */
-document.addEventListener("submit", (event) => {
+/*document.addEventListener("submit", (event) => {
   // Prevent form from submitting to the server
   event.preventDefault();
 
@@ -353,5 +353,5 @@ document.addEventListener("submit", (event) => {
     }
   };
 });
-
+*/
 console.log("app.js loaded!");

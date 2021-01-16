@@ -23,7 +23,8 @@ const oidc = new ExpressOIDC({
     },
     loginCallback: {
       path: '/users/callback',
-      afterCallback: '/dashboard'
+      // afterCallback, redirect to middleware route to add user to db, if needed
+      afterCallback: '/users/verify-user'
     }
   }
 });

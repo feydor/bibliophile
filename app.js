@@ -38,13 +38,12 @@ app.use(session({
 }));
 
 app.use(auth.oidc.router);
-app.use(auth.addUser);
 
 // enable routes
 app.use('/', publicRouter);
-app.use('/dashboard', auth.loginRequired, dashboardRouter);
-app.use('/users', usersRouter);
-app.use('/books', booksRouter);
+app.use('/dashboard', auth.addUser, auth.loginRequired, dashboardRouter);
+app.use('/users', auth.addUser, usersRouter);
+app.use('/books', auth.addUser, booksRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
