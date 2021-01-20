@@ -5,7 +5,7 @@ block variables
 
 block content
   .row
-    .eleven.columns
+    .column
     
       h3.text-center Virtual Library
 
@@ -16,7 +16,7 @@ block content
       #booklist-container
 
       .utility-buttons
-        form(id="add-book-form")
+        form(id="add-book-form" method="post" action="/books")
         button(id="add-book-button" class="fa fa-plus")
 
     <!-- JS

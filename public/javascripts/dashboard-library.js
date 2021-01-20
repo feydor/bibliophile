@@ -19,42 +19,75 @@ Object.freeze(VIEW);
 let CURRENT_VIEW = VIEW.list;
 let BookList = [];
 
-/**
- * Sorts a table by column heading (title, author, etc)
- *
- * @param {string} tableid The id of the table to be sorted.
- * @param {number} column The column heading to sort by, starting from 0 or the leftmost column.
- * @return {number} 1 for success, 0 for failure.
- */
-function sortTable(tableid = "booklist-id", column = 0) {
-  let table = document.getElementById(tableid);
 
-  if (table === undefined || table === null) {
-    return 0;
+/**
+ * GETs the user's booklist from backend
+ *
+ * @return {Aray} BookList An array containing the user's books
+ */
+async function getBookList() {
+  const response = await fetch(GETBOOKS, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.json();
+}
+/* Main entrypoint */
+window.addEventListener("load", () => {
+  // first check for browser/os variables
+  // Check for dark mode preference at the OS level
+  const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+  if (prefersDarkScheme) {
+    //document.body.classList.toggle("dark-mode");
   }
 
-  // Get rows from the table into an Array
-  let tbody = table.getElementsByTagName("tbody")[0];
-  let rows = Array.from(tbody.getElementsByTagName("tr"));
-
-  // Sort rows, toggle between alphanum and reverse
-  table.alphanum = !table.alphanum;
-  let sortedRows = [];
-  sortedRows = rows.sort((a, b) => {
-    let colA = a.getElementsByTagName("td")[column];
-    let colB = b.getElementsByTagName("td")[column];
-    return table.alphanum
-      ? colA.textContent > colB.textContent
-      : colA.textContent < colB.textContent;
+  // get booklist from server
+  getBookList().then((data) => {
+    // if data.books is empty, render the add books form
+    // amd hide the view selectors
+    if (data.books.length === 0) {
+       renderAddBookForm();
+       document.querySelector(".view-selectors").style.display = "none";
+       console.log(document.querySelector(".view-selectors").style.display);
+    } else {
+       document.querySelector(".view-selectors").style.display = "";
+    }
+    
+    BookList = data.books;
+    renderBookList();
   });
+});
 
-  // Append sortedRows to table's tbody
-  tbody.innerHTML = "";
-  sortedRows.forEach((row) => {
-    tbody.appendChild(row);
-  });
-  return 1;
+
+/**
+ * Renders the BookList using the current view
+ */
+function renderBookList() {
+  // first if the booklist has already been rendered, delete it
+  if (BOOKLIST_CONTAINER.hasChildNodes()) {
+    BOOKLIST_CONTAINER.innerHTML = "";
+  }
+
+  // based on current list view (detailed view vs gallery view)
+  // create a list of books using the received data
+  if (CURRENT_VIEW === VIEW.list) {
+    let listNode = createListNode(BookList);
+    BOOKLIST_CONTAINER.appendChild(listNode);
+
+    // add button-primary css class to list-view button, remove from the other
+    document.getElementById("list-view").classList.add("button-primary");
+    document.getElementById("gallery-view").classList.remove("button-primary");
+  } else {
+    let galleryNode = createGalleryNode(BookList);
+    BOOKLIST_CONTAINER.appendChild(galleryNode);
+
+    document.getElementById("gallery-view").classList.add("button-primary");
+    document.getElementById("list-view").classList.remove("button-primary");
+  }
 }
+
 
 /**
  * Returns an html table containing the booklist
@@ -77,6 +110,7 @@ function createListNode(bookList) {
   let root = document.createElement("table");
   root.classList.add("u-full-width");
   root.id = "booklist-table";
+  root.style.marginBottom = "25px";
   root.alphanum = true; // toggle boolean for alphanum and reverse sorting
 
   // iterate over each book in the list
@@ -124,6 +158,7 @@ function createListNode(bookList) {
   return root;
 }
 
+
 /**
  * Returns an html div containing bookcover images
  *
@@ -156,71 +191,44 @@ function createGalleryNode(booklist) {
   return root;
 }
 
-/**
- * Renders the BookList using the current view
- */
-function renderBookList() {
-  // first if the booklist has already been rendered, delete it
-  if (BOOKLIST_CONTAINER.hasChildNodes()) {
-    BOOKLIST_CONTAINER.innerHTML = "";
-  }
-
-  // based on current list view (detailed view vs gallery view)
-  // create a list of books using the received data
-  if (CURRENT_VIEW === VIEW.list) {
-    let listNode = createListNode(BookList);
-    BOOKLIST_CONTAINER.appendChild(listNode);
-
-    // add button-primary css class to list-view button, remove from the other
-    document.getElementById("list-view").classList.add("button-primary");
-    document.getElementById("gallery-view").classList.remove("button-primary");
-  } else {
-    let galleryNode = createGalleryNode(BookList);
-    BOOKLIST_CONTAINER.appendChild(galleryNode);
-
-    document.getElementById("gallery-view").classList.add("button-primary");
-    document.getElementById("list-view").classList.remove("button-primary");
-  }
-}
 
 /**
- * GETs the user's booklist from backend
+ * Sorts a table by column heading (title, author, etc)
  *
- * @return {Aray} BookList An array containing the user's books
+ * @param {string} tableid The id of the table to be sorted.
+ * @param {number} column The column heading to sort by, starting from 0 or the leftmost column.
+ * @return {number} 1 for success, 0 for failure.
  */
-async function getBookList() {
-  const response = await fetch(GETBOOKS, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  return response.json();
-}
-/* Main entrypoint */
-window.addEventListener("load", () => {
-  // first check for browser/os variables
-  // Check for dark mode preference at the OS level
-  const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
-  if (prefersDarkScheme) {
-    //document.body.classList.toggle("dark-mode");
+function sortTable(tableid = "booklist-id", column = 0) {
+  let table = document.getElementById(tableid);
+
+  if (table === undefined || table === null) {
+    return 0;
   }
 
-  // get booklist from server
-  getBookList().then((data) => {
-    //console.log(data.books);
-    
-    // if data.books is empty, render the add books form
-    //console.log(data.books.length);
-    if (data.books.length === 0) {
-      FORMNODE.style.display = "none";
-      ADDBUTTON.style.display = "";
-    }
+  // Get rows from the table into an Array
+  let tbody = table.getElementsByTagName("tbody")[0];
+  let rows = Array.from(tbody.getElementsByTagName("tr"));
 
-    BookList = data.books;
-    renderBookList();
+  // Sort rows, toggle between alphanum and reverse
+  table.alphanum = !table.alphanum;
+  let sortedRows = [];
+  sortedRows = rows.sort((a, b) => {
+    let colA = a.getElementsByTagName("td")[column];
+    let colB = b.getElementsByTagName("td")[column];
+    return table.alphanum
+      ? colA.textContent > colB.textContent
+      : colA.textContent < colB.textContent;
   });
-});
+
+  // Append sortedRows to table's tbody
+  tbody.innerHTML = "";
+  sortedRows.forEach((row) => {
+    tbody.appendChild(row);
+  });
+  return 1;
+}
+
 
 document.getElementById("list-view").addEventListener("click", () => {
   CURRENT_VIEW = VIEW.list;
@@ -232,8 +240,12 @@ document.getElementById("gallery-view").addEventListener("click", () => {
   renderBookList();
 });
 
-// Populates a form to add a book to the library
-ADDBUTTON.addEventListener("click", () => {
+
+/**
+ * Populates and renders the add-book form
+ *
+ */
+function renderAddBookForm() {
   // first hide the add book button and redisplay the formNode
   ADDBUTTON.style.display = "none";
   FORMNODE.style.display = "";
@@ -269,6 +281,7 @@ ADDBUTTON.addEventListener("click", () => {
   titleInput.setAttribute("type", "text");
   titleInput.setAttribute("placeholder", "Lorem Ipsum");
   titleInput.setAttribute("id", "titleInput");
+  titleInput.setAttribute("name", "titleInput");
   rootNode.appendChild(titleLabel);
   rootNode.appendChild(titleInput);
 
@@ -281,6 +294,7 @@ ADDBUTTON.addEventListener("click", () => {
   authorInput.setAttribute("type", "text");
   authorInput.setAttribute("placeholder", "Lorem Ipsum");
   authorInput.setAttribute("id", "authorInput");
+  authorInput.setAttribute("name", "authorInput");
   rootNode.appendChild(authorLabel);
   rootNode.appendChild(authorInput);
 
@@ -293,6 +307,7 @@ ADDBUTTON.addEventListener("click", () => {
   isbnInput.setAttribute("type", "number");
   isbnInput.setAttribute("placeholder", "1234567891234");
   isbnInput.setAttribute("id", "isbnInput");
+  isbnInput.setAttribute("name", "isbnInput");
   isbnInput.required = true;
   rootNode.appendChild(isbnLabel);
   rootNode.appendChild(isbnInput);
@@ -315,6 +330,12 @@ ADDBUTTON.addEventListener("click", () => {
 
   FORMNODE.appendChild(rootNode);
   FORMNODE.classList.add("rendered");
+}
+
+
+// Populates a form to add a book to the library
+ADDBUTTON.addEventListener("click", () => {
+  renderAddBookForm();
 });
 
 /**

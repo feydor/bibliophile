@@ -43,7 +43,7 @@ app.use(auth.oidc.router);
 app.use('/', publicRouter);
 app.use('/dashboard', auth.addUser, auth.loginRequired, dashboardRouter);
 app.use('/users', auth.addUser, usersRouter);
-app.use('/books', auth.addUser, booksRouter);
+app.use('/books', auth.addUser, auth.updateUserId, booksRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

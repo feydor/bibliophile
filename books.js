@@ -79,12 +79,14 @@ router.post("/", function (req, res) {
   if (!req.user) {
     throw console.error("addUser middleware not running");
   }
+  
+  //console.log(req.body);
 
-  // Parse req.body, instantiate var 'globals'
+  // Parse req.body
   let book = {
-    title: req.body.title,
-    author: req.body.author,
-    isbn: req.body.isbn,
+    title: req.body.titleInput,
+    author: req.body.authorInput,
+    isbn: req.body.isbnInput,
     subject: null,
     publisher: null,
     publish_date: null,
@@ -113,13 +115,15 @@ router.post("/", function (req, res) {
       .then((res) => res.json())
       .then((books) => {
         console.log(books);
-        console.log(Object.entries(books).length);
+        //console.log(Object.entries(books).length);
+
+        // fill in the remaining book fields using openlibrary api call
         if (Object.entries(books).length !== 0) {
           // Add coverurl from OpenLibrary API call
           if (books[`ISBN:${book.isbn}`]["cover"]) {
             book.coverurl = books[`ISBN:${book.isbn}`]["cover"]["medium"];
           }
-          console.log(book.coverurl ? book.coverurl : "no cover found");
+          //console.log(book.coverurl ? book.coverurl : "no cover found");
 
           // Add subject, publisher, etc
           // (subjects and publishers are arrays in api data, use first one)
@@ -129,31 +133,69 @@ router.post("/", function (req, res) {
           book.publisher = books[`ISBN:${book.isbn}`]["publishers"][0]["name"];
           book.publish_date = books[`ISBN:${book.isbn}`]["publish_date"];
 
-          // Store book as an SQL entry
-          let insertBook = (book) => {
-            dbcon.execute(
-              "INSERT INTO books(title, author, isbn, publisher, publish_date, subject, coverurl) " /
-                "VALUES(?, ?, ?, ?, ?, ?, ?)",
-              [
-                book.title,
-                book.author,
-                book.isbn,
-                book.publisher,
-                book.publish_date,
-                book.subject,
-                book.coverurl,
-              ],
-              function (err, results, fields) {
-                if (err) return console.error(err);
-                // results contains rows returned by server
-                console.log(results);
-                // fields contains extra meta data about results, if available
-                console.log(fields);
-              }
-            );
-          };
+          // if new book,
+          //   store it in library.books,
+          //   get the new book's id,
+          //   add the bookid and user id to a row in library.library
+          // else if pre-exisitng book,
+          //   get the book's id,
+          //   then store userid and bookid relation in library.library 
+          console.log("req.userid=");
+          console.log(req.userid);
+          //var bookid = undefined;
 
-          insertBook(book);
+          // insert new book, assumes book already exists
+          // TODO: change to async
+          dbcon.execute(
+            `INSERT INTO books(title, author, isbn, publisher, publish_date,
+     subject, coverurl) VALUES(?, ?, ?, ?, ?, ?, ?)`,
+            [
+              book.title,
+              book.author,
+              book.isbn,
+              book.publisher,
+              book.publish_date,
+              book.subject,
+              book.coverurl,
+            ], 
+            function(err, results) {
+              if (err) return console.error(err);
+
+              // get bookid
+              console.log(results);
+              let bookid = results.insertId;
+              
+              // add to library
+              dbcon.execute(
+                `INSERT INTO library (userid, bookid) VALUE(?, ?)`,
+                [ req.userid, bookid ],
+                function(err, results) {
+                  if (err) return console.error(err);
+                  // results contains rows returned by server
+                  console.log(results);
+                  // fields contains extra meta data about results, if available
+                }
+              );
+            }
+          );
+
+          /*
+           if (!bookExists(book.isbn)) {
+            insertBook(book);
+            
+            // TODO: Use await/async as syntatic sugar
+            const [rows, fields] = await dbcon.execute(`SELECT id FROM books 
+            WHERE books.isbn =`, [ book.isbn ]);
+            bookid = rows[0].id;
+            console.log("bookid:");
+            console.log(bookid);
+            
+            updateLibrary(req.userid, bookid)   
+          } else {
+            bookid = getBookId(book.title);
+            updateLibrary(req.userid, bookid);
+          }
+          */
 
           // Return status code 200
           res.send({
@@ -161,15 +203,87 @@ router.post("/", function (req, res) {
             statusTxt: "OK",
             book: book,
           });
+
         } else {
           console.error(`Book NOT found, ISBN:${book.isbn}`);
-        }
+        } 
       });
   } else {
-    // TODO: using author/title
+    // TODO: using author/title 
     console.error(`Not valid isbn, ISBN:${book.isbn}`);
     console.log(isValidIsbn(book.isbn));
+
+    res.send({ status: 400, statusTxt: "Not a valid isbn." });
   }
 });
+
+
+// Query functions
+// searches library.books for matching isbn
+// returns TRUE if found
+let bookExists = (isbn) => {
+  dbcon.execute(`SELECT id FROM books WHERE books.isbn = ?`,
+    [ isbn ],
+    function(err, results) {
+      if (err) return console.error(err);
+      
+      return results.length > 0 ? true : false;
+    });            
+};
+
+// returns the bookid for the book in library.book that matches the isbn param
+// if the book doesn't exist, it returns 0
+let getBookId = (title) => {
+  dbcon.execute(`SELECT id FROM books WHERE books.title = ?`,
+    [ title ],
+    function(err, results) {
+      if (err) return console.error(err);
+
+      if (results.length > 0) {
+        return results[0].id;
+      } else {
+        return 0;
+      }
+    }
+  );
+};
+
+// inserts the book into library.books
+let insertBook = (book) => {
+  dbcon.execute(
+    `INSERT INTO books(title, author, isbn, publisher, publish_date,
+     subject, coverurl) VALUES(?, ?, ?, ?, ?, ?, ?)`,
+    [
+      book.title,
+      book.author,
+      book.isbn,
+      book.publisher,
+      book.publish_date,
+      book.subject,
+      book.coverurl,
+    ],
+    function(err, results) {
+      if (err) return console.error(err);
+      // results contains rows returned by server
+      console.log(results);
+      // fields contains extra meta data about results, if available
+    }
+  );
+};
+
+// inserts an entry into library.library containing a userid paired with a bookid
+let updateLibrary = (userid, bookid) => {
+  dbcon.execute(
+    `INSERT INTO library (userid, bookid)
+     VALUE(?, ?)`,
+    [ userid, bookid ],
+    function(err, results) {
+      if (err) return console.error(err);
+      // results contains rows returned by server
+      console.log(results);
+      // fields contains extra meta data about results, if available
+    }
+  );
+};
 
 module.exports = router;

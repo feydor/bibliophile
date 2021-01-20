@@ -15,12 +15,12 @@ router.get('/verify-user', (req, res, next) => {
     throw console.error("addUser middleware not running");
   } 
 
-  dbcon.execute('SELECT username FROM users WHERE users.username = ?',
+  dbcon.execute('SELECT id FROM users WHERE users.username = ?',
     [req.user.profile.login],
     function(err, results) {
       if (err) throw console.error(err);
       
-      // user found, redirect to '/dasboard'
+      // user found, redirect to '/dashboard'
       if (results && results.length > 0) {
         res.redirect('/dashboard');
       // no user found, add one
@@ -36,6 +36,7 @@ router.get('/verify-user', (req, res, next) => {
             console.log(results);
             
             // user inserted, redirect
+            req.userid = results[0].id;
             res.redirect('/dashboard');
           }
         });
