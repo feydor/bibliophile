@@ -42,7 +42,7 @@ VALUES ('1', '1'),
 // delete SQL tables
 DROP TABLE library.books;
 DROP TABLE library.users;
-DROP TABLE library.libraries;
+DROP TABLE library.library;
 
 
 // get book titles belonging to a user, by username
@@ -50,5 +50,5 @@ SELECT title
 FROM books 
 INNER JOIN library ON books.id = library.bookid
 INNER JOIN users ON users.id = library.userid
-where users.username = 'atrab@anette.website';
+where users.username = 'atrab@energyce.cyou';
 

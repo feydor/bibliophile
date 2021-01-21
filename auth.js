@@ -1,6 +1,7 @@
 var okta = require('@okta/okta-sdk-nodejs');
 var ExpressOIDC = require('@okta/oidc-middleware').ExpressOIDC;
-const dbcon = require('./db');
+const dbconnection = require('./db'); // async function, returns Promise
+
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
@@ -52,24 +53,20 @@ let addUser = (req, res, next) => {
 
 // must come after addUser middleware
 // adds userid field to req.user
-let updateUserId = (req, res, next) => {
+let updateUserId = async (req, res, next) => {
   if (!req.user) {
     throw console.error("addUser middleware not running.");
   }
+  
+  let db = await dbconnection();
+  const [ rows ] = await db.execute('SELECT id FROM users WHERE users.username = ?',
+    [ req.user.profile.login ]);
+  
+  if (rows && rows.length > 0) {
+    req.userid = rows[0].id;
+  }
 
-  dbcon.execute('SELECT id FROM users WHERE users.username = ?',
-    [ req.user.profile.login ],
-    function(err, results) {
-      if (err) throw console.error(err);
-      
-      // user found, add id to req.user.userid
-      if (results && results.length > 0) {
-        req.userid = results[0].id;
-      }
-
-      next();
-    }
-  );
+  next();
 };
 
 // pass as middleware to routes that require user login
@@ -80,6 +77,5 @@ let loginRequired = (req, res, next) => {
   
   next();
 }
-
 
 module.exports = { oidc, oktaClient, addUser, updateUserId, loginRequired };
