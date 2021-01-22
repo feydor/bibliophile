@@ -12,6 +12,10 @@ body {
     margin-bottom: 10px;
 }
 
+.invalid-input {
+  border: red 2px solid;
+}
+
 #cancelButton {
     margin-left: 5px;
     margin: auto;
@@ -19,6 +23,10 @@ body {
 
 #submitButton {
   margin: auto;
+}
+#submitButton:disabled {
+  opacity: 0.65; 
+  cursor: not-allowed;
 }
 
 #booklist-table {

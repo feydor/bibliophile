@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
   books = await getUserBooks(req.user.profile.login);
   console.log('GET /books: ', books);
   
-  res.send({
+  return res.send({
     books: books,
     status: 200,
     statusTxt: "OK",
@@ -77,31 +77,29 @@ router.post("/", async function (req, res) {
     throw console.error("addUser middleware not running");
   }
 
-  //console.log(req.body);
+  console.log(req.body);
 
   // Parse req.body
   let book = {
-    title: req.body.titleInput,
-    author: req.body.authorInput,
-    isbn: req.body.isbnInput,
+    title: req.body.title,
+    author: req.body.author,
+    isbn: req.body.isbn,
     subject: null,
     publisher: null,
     publish_date: null,
     coverurl: null,
   };
 
-  // Validate required title and author
-  if (!book.title || !book.author) {
-    res.send({ status: 400, statusTxt: "Bad request." });
-  }
-
   // OpenLibrary API using isbn OR title/author
   // EX: https://openlibrary.org/api/books?bibkeys=ISBN:9780140047486&jsmd=data&format=json
+  // isbn should be a string
   let isValidIsbn = (isbn) => {
-    let digits = Math.floor(Math.log10(isbn)) + 1;
-    if (digits === 10 || digits === 13) {
-      return true;
+    if (parseInt(isbn)) {
+      if (isbn.length === 10 || isbn.length === 13) {
+        return true;
+      }  
     }
+
     return false;
   };
 
@@ -109,7 +107,7 @@ router.post("/", async function (req, res) {
     // TODO: not valid isbn, use author/title instead?
     console.error(`ISBN not valid, ISBN:${book.isbn}`);
     console.log(isValidIsbn(book.isbn));
-    res.send({ status: 400, statusTxt: "Not a valid isbn." });
+    return res.send({ status: 400, statusTxt: "Not a valid isbn." });
   }
 
   const fetchOLApi = async () => {
@@ -138,7 +136,19 @@ router.post("/", async function (req, res) {
   if (Object.entries(apibooks).length === 0) {
     // TODO: not in OpenLibrary API, return error?
     console.error(`Book NOT found, ISBN:${book.isbn}`);
-    res.send({ status: 400, statusTxt: "Book does not exist." });
+    res.redirect(200, '/dashboard');
+    return res.send({ status: 400, statusTxt: "Book does not exist." });
+  }
+
+  // if title and/author were not provided in body, use OL api 
+  if (book.title.length === 0 || book.author.length === 0) {
+    if (apibooks[`ISBN:${book.isbn}`]["title"]) {
+      book.title = apibooks[`ISBN:${book.isbn}`]["title"];
+    }
+    
+    if (apibooks[`ISBN:${book.isbn}`]["authors"]) {
+      book.author = apibooks[`ISBN:${book.isbn}`]["authors"][0]["name"];
+    }
   }
 
   // If it exists, add coverurl from api call
@@ -190,8 +200,8 @@ router.post("/", async function (req, res) {
       console.error('Failed to update library.');
     }
   }
-
-  res.send({
+  
+  return res.send({
     status: 200,
     statusTxt: "OK",
     book: book,

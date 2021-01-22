@@ -304,11 +304,45 @@ function renderAddBookForm() {
   isbnLabel.setAttribute("for", "isbnInput");
   let isbnInput = document.createElement("input");
   isbnInput.classList.add("u-full-width");
-  isbnInput.setAttribute("type", "number");
+  isbnInput.setAttribute("type", "tel");
+  isbnInput.setAttribute("pattern", "[0-9]*")
   isbnInput.setAttribute("placeholder", "1234567891234");
   isbnInput.setAttribute("id", "isbnInput");
   isbnInput.setAttribute("name", "isbnInput");
   isbnInput.required = true;
+  // validate input as the user types (10 or 13 digit isbn)
+  let timeout = null;
+  isbnInput.addEventListener("input", () => {
+    // throttle input checking for 1 second 
+    // Clear the timeout if it has already been set.
+    // This will prevent the previous task from executing
+    // if it has been less than <MILLISECONDS>
+    clearTimeout(timeout);
+
+    // Make a new timeout set to go off in 1000ms (1 second)
+    timeout = setTimeout(function () {
+      let regex = /^([0-9]{10,13})$/g;
+      let isbn = document.getElementById("isbnInput");
+
+      if (regex.test(isbnInput.value)) {
+        console.log("Valid isbn:", isbn.value);
+        
+        isbn.classList.remove(".invalid-input"); 
+        document.getElementById("submitButton").disabled = "";
+        return;
+      } else {
+        console.log("Invalid isbn:", isbn.value);
+        isbn.classList.toggle(".invalid-input"); 
+        
+        // make submitButton unclickable
+        document.getElementById("submitButton").disabled = "true";
+        // show tooltip to ask user to input valid isbn 
+        return;
+      }
+    }, 500);
+
+    
+  });
   rootNode.appendChild(isbnLabel);
   rootNode.appendChild(isbnInput);
 
@@ -327,6 +361,12 @@ function renderAddBookForm() {
     ADDBUTTON.style.display = "";
   });
   rootNode.appendChild(cancelButton);
+  
+  // render invisible toolTip, to be shown by onchange even handlers
+  let toolTip = document.createElement("div");
+  toolTip.id = "toolTip";
+  toolTip.display = "none";
+  rootNode.appendChild(toolTip);
 
   FORMNODE.appendChild(rootNode);
   FORMNODE.classList.add("rendered");
@@ -342,15 +382,15 @@ ADDBUTTON.addEventListener("click", () => {
  * Handles pressing the submit button in the add books form
  *
  * @return {number} 1 for success, 0 for failure.
- */
-/*document.addEventListener("submit", (event) => {
+ */ 
+FORMNODE.addEventListener("submit", (event) => {
   // Prevent form from submitting to the server
   event.preventDefault();
-
+  
   // first, hide the form node and redisplay the add book button
   FORMNODE.style.display = "none";
   ADDBUTTON.style.display = "";
-
+  
   // extract data from inputs
   let data = {
     title: document.getElementById("titleInput").value,
@@ -364,15 +404,11 @@ ADDBUTTON.addEventListener("click", () => {
   xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
   xhr.send(JSON.stringify(data));
   xhr.onload = function () {
-    if (xhr.status != 200) {
-      // analyze HTTP status of the response
-      alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
-    } else {
-      // show the result
-      alert(`Done, got ${xhr.response.length} bytes`); // response is the server response
-      console.log(xhr.response);
-    }
+    // show the result
+    console.log(`Done, got ${xhr.response.length} bytes`); // response is the server response
+    console.log(xhr.response);
+    window.location.href = DOMAIN + 'dashboard';
   };
 });
-*/
+
 console.log("app.js loaded!");

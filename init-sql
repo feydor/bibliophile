@@ -4,7 +4,7 @@ CREATE TABLE library.books (
     author VARCHAR(255) NOT NULL,
     publisher VARCHAR(255),
     publish_date VARCHAR(255),
-    isbn REAL NOT NULL,
+    isbn VARCHAR(13) NOT NULL,
     subject VARCHAR(255),
     coverurl VARCHAR(2083) NOT NULL,
     PRIMARY KEY(id)
