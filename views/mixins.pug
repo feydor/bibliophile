@@ -1,0 +1,87 @@
+<!-- Pug mixins -->
+<!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+mixin sidebarMessageCard(imgsrc, strToEmphasize, message, link, linkStr)
+  .sidebar-card
+    img.sidebar-card-illustration.mb-2(src=imgsrc alt="")
+    p.text-center.mb-2 #[strong= strToEmphasize]
+    p.text-center.mb-2= message
+    if link != undefined && linkStr != undefined
+      a.btn.btn-success.btn-sm(href=link)= linkStr
+
+mixin topBarSearch
+  form.d-none.d-sm-inline-block.form-inline.mr-auto.ml-md-3.my-2.my-md-0.mw-100.navbar-search
+    div.input-group
+      input.form-control.bg-light.border-0.small(type="text" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2")
+      div.input-group-append
+        button.btn.btn-secondary(type="button")
+          i.fas.fa-search.fa-sm
+
+mixin topBarSearchDropdown
+  li.nav-item.dropdown.no-arrow.d-sm-none
+    a#searchDropdown.nav-link.dropdown-toggle(href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+      i.fas.fa-search.fa-fw
+    // Dropdown messages (toggle class show)
+    div.dropdown-menu.dropdown-menu-right.p-3.shadow.animated--grow-in(aria-labelledby="searchDropdown")
+      form.form-inline.mr-auto.w-100.navbar-search
+        div.input-group
+          input.form-control.bg-light.border-0.small(type="text" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2")
+          div.input-group-append
+            button.btn.btn-primary(type="button")
+              i.fas.fa-search.fa-sm
+
+// ex: +Alert("December 18, 2021", "Hello!", "fa-donate")
+mixin Alert(date, message, faIcon) 
+  a.dropdown-item.d-flex.align-items-center(href="#")
+    div.mr-3
+      div.icon-circle.bg-success
+        i.fas.text-white(class=faIcon)
+    div
+      div.small.text-gray-500= date
+      p= message
+
+// Put alerts after and under this mixin call
+mixin topbarAlerts(numberOfAlerts)
+  li.nav-item.dropdown.no-arrow.mx-1
+    a#alertsDropdown.nav-link.dropdown-toggle(href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+      i.fas.fa-bell.fa-fw
+      // Counter - Alerts
+      if numberOfAlerts > 3
+        span.badge.badge-danger.badge-counter 3+
+      else 
+        span.badge.badge-danger.badge-counter= numberOfAlerts
+    // Dropdown - Alerts (toggle class show)
+    div.dropdown-list.dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby="alertsDropdown")
+      h6.dropdown-header Alerts Center
+      // Add alerts after here
+      block
+      a.dropdown-item.text-center.small.text-gray-500(href="#") Show All Alerts
+
+mixin Message(message, username, dateAndTime, imgSrc) 
+  a.dropdown-item.d-flex.align-items-center(href="#")
+    div.dropdown-list-image.mr-3
+      img.rounded-circle(src=imgSrc alt="")
+      div.status-indicator.bg-success
+    div.font-weight-bold
+      div.text-truncate= message
+      div.small.text-gray-500= username 
+        span ·
+          span= dateAndTime
+
+// Put messages after and under this mixin call
+mixin topBarMessages(numberOfMessages)
+  li.nav-item.dropdown.no-arrow.mx-1
+    a#messagesDropdown.nav-link.dropdown-toggle(href="#" role="button" data-toggle="dropdown" 
+      aria-haspopup="true" aria-expanded="false")
+      i.fas.fa-envelope.fa-fw
+      // Counter - Messages
+      if numberOfMessages > 3
+        span.badge.badge-danger.badge-counter 3+
+      else 
+      span.badge.badge-danger.badge-counter= numberOfMessages
+    // Dropdown - Messages (toggle class show)
+    div.dropdown-list.dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(
+      aria-labelledby="messagesDropdown")
+      h6.dropdown-header Message Center
+      // Add messages after here
+      block
+      a.dropdown-item.text-center.small.text-gray-500(href="#") Read More Messages
