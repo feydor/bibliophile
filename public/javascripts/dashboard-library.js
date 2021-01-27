@@ -1,5 +1,7 @@
+/* dashboard-library.js ~ CRUD requests, form creation, table button functionality */
 "use strict";
 
+// constants
 const GETBOOKS = "http://localhost:3000/books";
 const GETSAVED = "http://localhost:3000/saved";
 const POSTBOOK = "http://localhost:3000/books";
@@ -8,6 +10,7 @@ const BOOKLIST_CONTAINER = document.getElementById("booklist-container");
 const FORMNODE = document.getElementById("add-book-form");
 const ADDBUTTON = document.getElementById("add-book-button");
 const MAX_URL_LENGTH = 45;
+
 // enumeration of all possible view states (for booklist)
 const VIEW = {
   gallery: "gallery",
@@ -17,6 +20,8 @@ Object.freeze(VIEW);
 
 // State variables
 let CURRENT_VIEW = VIEW.list;
+
+// local cache array
 let BookList = [];
 
 
@@ -43,21 +48,29 @@ window.addEventListener("load", () => {
     //document.body.classList.toggle("dark-mode");
   }
 
-  // get booklist from server
-  getBookList().then((data) => {
-    // if data.books is empty, render the add books form
-    // amd hide the view selectors
-    if (data.books.length === 0) {
-       renderAddBookForm();
-       document.querySelector(".view-selectors").style.display = "none";
-       console.log(document.querySelector(".view-selectors").style.display);
-    } else {
-       document.querySelector(".view-selectors").style.display = "";
-    }
-    
-    BookList = data.books;
+  if (BookList.length > 0) {
+    // BookList is already loaded, render BookList
+    document.getElementById("bookListCard").style.display = "";
+    document.querySelector(".view-selectors").style.display = "";
     renderBookList();
-  });
+  } else {
+    // get BookList from server
+    getBookList().then(data => {
+      // if data.books is empty, render the add books form
+      // and hide the view selectors and #bookListCard
+      if (data.books.length === 0) {
+        renderAddBookForm();
+        document.getElementById("bookListCard").style.display = "none";
+        document.querySelector(".view-selectors").style.display = "none";
+      } else {
+        document.getElementById("bookListCard").style.display = "";
+        document.querySelector(".view-selectors").style.display = "";
+      }
+
+      BookList = data.books;
+      renderBookList();
+    });
+  }
 });
 
 
@@ -76,6 +89,13 @@ function renderBookList() {
     let listNode = createListNode(BookList);
     BOOKLIST_CONTAINER.appendChild(listNode);
 
+    // Render DataTable
+    try {
+      $('#dataTable').DataTable();
+    } catch(error) {
+      //console.error(error);
+    }
+    
     // add button-primary css class to list-view button, remove from the other
     document.getElementById("list-view").classList.add("button-primary");
     document.getElementById("gallery-view").classList.remove("button-primary");
@@ -109,7 +129,7 @@ function renderBookList() {
 function createListNode(bookList) {
   let root = document.createElement("table");
   root.classList.add("u-full-width");
-  root.id = "booklist-table";
+  root.id = "dataTable";
   root.style.marginBottom = "25px";
   root.alphanum = true; // toggle boolean for alphanum and reverse sorting
 
@@ -257,56 +277,64 @@ function renderAddBookForm() {
 
   // otherwise add form elements to the formNode
   let rootNode = document.createElement("div");
-  rootNode.classList.add("row");
 
   // form header
-  let headerDiv = document.createElement("div");
-  headerDiv.classList.add("u-full-width");
+  let headerGroup = document.createElement("div");
+  headerGroup.classList.add("form-group");
   let header = document.createElement("h5");
   header.textContent = "Add a book:";
-  headerDiv.appendChild(header);
-  rootNode.appendChild(headerDiv);
+  headerGroup.appendChild(header);
+  rootNode.appendChild(headerGroup);
 
-  // text inputs (author, title, etc)
-  // TODO: For missing categories, fill in by searching through public book apis
-
+  /* Text inputs (author, title, etc)
+   */
   // book title input
-  // EX: <label for="exampleEmailInput">Your email</label>
-  //     <input class="u-full-width" type="email" placeholder="test@mailbox.com" id="exampleEmailInput">
+  // EX: <div class="form-group">
+  //       <label for="exampleEmailInput">Your email</label>
+  //       <input class="u-full-width" type="email" placeholder="test@mailbox.com" id="exampleEmailInput">
+  //     </div>
+  let titleGroup = document.createElement("div");
+  titleGroup.classList.add("form-group");
   let titleLabel = document.createElement("label");
-  titleLabel.textContent = "Title:";
+  titleLabel.textContent = "Title (optional):";
   titleLabel.setAttribute("for", "titleInput");
   let titleInput = document.createElement("input");
-  titleInput.classList.add("u-full-width");
+  titleInput.classList.add("form-control");
   titleInput.setAttribute("type", "text");
-  titleInput.setAttribute("placeholder", "Lorem Ipsum");
+  titleInput.setAttribute("placeholder", "Enter title");
   titleInput.setAttribute("id", "titleInput");
   titleInput.setAttribute("name", "titleInput");
-  rootNode.appendChild(titleLabel);
-  rootNode.appendChild(titleInput);
+  titleGroup.appendChild(titleLabel);
+  titleGroup.appendChild(titleInput);
+  rootNode.appendChild(titleGroup);
 
   // book author input
+  let authorGroup = document.createElement("div");
+  authorGroup.classList.add("form-group");
   let authorLabel = document.createElement("label");
-  authorLabel.textContent = "Author:";
+  authorLabel.textContent = "Author (optional):";
   authorLabel.setAttribute("for", "authorInput");
   let authorInput = document.createElement("input");
-  authorInput.classList.add("u-full-width");
+  authorInput.classList.add("form-control");
   authorInput.setAttribute("type", "text");
-  authorInput.setAttribute("placeholder", "Lorem Ipsum");
+  authorInput.setAttribute("placeholder", "Enter author");
   authorInput.setAttribute("id", "authorInput");
   authorInput.setAttribute("name", "authorInput");
-  rootNode.appendChild(authorLabel);
-  rootNode.appendChild(authorInput);
+  authorGroup.appendChild(authorLabel);
+  authorGroup.appendChild(authorInput);
+  rootNode.appendChild(authorGroup);
 
   // book isbn input
+  let isbnGroup = document.createElement("div");
+  isbnGroup.classList.add("form-group");
   let isbnLabel = document.createElement("label");
   isbnLabel.textContent = "ISBN (10 or 13 digits):";
   isbnLabel.setAttribute("for", "isbnInput");
   let isbnInput = document.createElement("input");
-  isbnInput.classList.add("u-full-width");
+  isbnInput.classList.add("form-control");
   isbnInput.setAttribute("type", "tel");
   isbnInput.setAttribute("pattern", "[0-9]*")
-  isbnInput.setAttribute("placeholder", "1234567891234");
+  isbnInput.setAttribute("placeholder", "Enter ISBN");
   isbnInput.setAttribute("id", "isbnInput");
   isbnInput.setAttribute("name", "isbnInput");
   isbnInput.required = true;
@@ -343,17 +371,22 @@ function renderAddBookForm() {
 
     
   });
-  rootNode.appendChild(isbnLabel);
-  rootNode.appendChild(isbnInput);
+  isbnGroup.appendChild(isbnLabel);
+  isbnGroup.appendChild(isbnInput);
+  rootNode.appendChild(isbnGroup)
 
   // submit and cancel buttons
   let submitButton = document.createElement("button");
   submitButton.id = "submitButton";
+  submitButton.classList.add("btn", "btn-primary");
+  submitButton.setAttribute("type", "submit");
   submitButton.textContent = "Submit";
   rootNode.appendChild(submitButton);
 
   let cancelButton = document.createElement("button");
   cancelButton.id = "cancelButton";
+  cancelButton.classList.add("btn", "btn-danger");
+  cancelButton.setAttribute("type", "cancel");
   cancelButton.textContent = "Cancel";
   cancelButton.addEventListener("click", () => {
     // hide the formNode and redisplay the add books form

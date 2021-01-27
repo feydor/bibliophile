@@ -3,7 +3,7 @@ const router = express.Router();
 const fetch = require("node-fetch");
 
 // import custom db module
-const dbconnection = require("./db");   
+const db = require("./db");   
 
 // Ideas for possible middlewares
 // 1. Check for OpenLibrary API book and pass it down as Book
@@ -34,7 +34,6 @@ router.get("/", async (req, res) => {
 const getUserBooks = async (username) => {
   let query = `SELECT * FROM books INNER JOIN library ON books.id = library.bookid
               INNER JOIN users ON users.id = library.userid WHERE users.username = ?;`;
-  const db = await dbconnection();
   const [ rows ] = await db.execute(query, [ username ]);
   // TODO: populate books array with book objects with variable properties
   // For now, only return title, author, subject, publisher, date
@@ -136,7 +135,6 @@ router.post("/", async function (req, res) {
   if (Object.entries(apibooks).length === 0) {
     // TODO: not in OpenLibrary API, return error?
     console.error(`Book NOT found, ISBN:${book.isbn}`);
-    res.redirect(200, '/dashboard');
     return res.send({ status: 400, statusTxt: "Book does not exist." });
   }
 
@@ -214,18 +212,15 @@ router.post("/", async function (req, res) {
 // searches library.books for matching isbn
 // returns TRUE if found
 const bookExists = async (isbn) => {
-  const db = await dbconnection();
   const [ rows ] = await db.execute(`SELECT title FROM books WHERE books.isbn = ?`,
     [ isbn ],);
   
-  console.log('Book exists: ', rows);
   return rows && rows.length > 0 ? true : false;
 };
 
 // returns the bookid for the book in library.book that matches the isbn param
 // if the book doesn't exist, it returns 0
 const getBookId = async (isbn) => {
-  const db = await dbconnection();
   const [ rows ] = await db.execute(`SELECT id FROM books WHERE books.isbn = ?`,
     [ isbn ],);
 
@@ -234,7 +229,6 @@ const getBookId = async (isbn) => {
 
 // inserts the book into library.books
 const insertBook = async (book) => {
-  const db = await dbconnection();
   const [ rows ] = await db.execute(
     `INSERT INTO books(title, author, isbn, publisher, publish_date,
      subject, coverurl) VALUES(?, ?, ?, ?, ?, ?, ?)`,
@@ -248,18 +242,17 @@ const insertBook = async (book) => {
       book.coverurl,
     ]);
     
-  return rows && rows.length > 0 ? true : false;
+  return rows && rows.affectedRows > 0 ? true : false;
 };
 
 // inserts an entry into library.library containing a userid paired with a bookid
 const updateLibrary = async (userid, bookid) => {
-  const db = await dbconnection();
   const [ rows ] = await db.execute(
     `INSERT INTO library (userid, bookid)
      VALUE(?, ?)`,
     [ userid, bookid ]);
 
-  return rows && rows.length > 0 ? true : false;
+  return rows && rows.affectedRows > 0 ? true : false;
 };
 
 module.exports = router;

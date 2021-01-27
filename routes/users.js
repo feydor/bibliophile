@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const dbconnection = require('../db');
+const db = require('../db');
 
 // Log a user out locally
 router.get('/logout', (req, res) => {
@@ -31,7 +31,6 @@ router.get('/verify-user', (req, res) => {
 // returns true if the provided username matches a row's username field in library.users
 // else returns false
 const isExistingUser = async (username) => {
-  let db = await dbconnection();
   const [ rows ] = await db.execute(`SELECT id FROM users WHERE users.username = ? `,
     [ username ]);
   return rows.id ? true : false;
@@ -40,7 +39,6 @@ const isExistingUser = async (username) => {
 // if succesful, returns the affected row's id (the userid)
 // else returns an error
 const insertNewUser = async (profile) => {
-  let db = await dbconnection();
   const [ rows ] = await db.execute(
     `INSERT INTO users (username, first_name, last_name, email) VALUE (?, ?, ?, ?);`,
     [ profile.login, profile.firstName, profile.lastName, profile.email ]);

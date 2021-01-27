@@ -1,3 +1,5 @@
+CREATE DATABASE library;
+
 CREATE TABLE library.books (
     id INT AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
@@ -52,3 +54,6 @@ INNER JOIN library ON books.id = library.bookid
 INNER JOIN users ON users.id = library.userid
 where users.username = 'atrab@energyce.cyou';
 
+// create users
+CREATE USER 'dev'@'localhost' IDENTIFIED WITH mysql_native_password BY '321';
+GRANT CREATE, ALTER, DROP, INSERT, UPDATE, DELETE, SELECT, REFERENCES, RELOAD on *.* TO 'dev'@'localhost' WITH GRANT OPTION;

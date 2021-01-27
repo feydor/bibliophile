@@ -13,7 +13,7 @@ mixin topBarSearch
     div.input-group
       input.form-control.bg-light.border-0.small(type="text" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2")
       div.input-group-append
-        button.btn.btn-secondary(type="button")
+        button.btn.btn-primary(type="button")
           i.fas.fa-search.fa-sm
 
 mixin topBarSearchDropdown
@@ -43,7 +43,7 @@ mixin Alert(date, message, faIcon)
 mixin topbarAlerts(numberOfAlerts)
   li.nav-item.dropdown.no-arrow.mx-1
     a#alertsDropdown.nav-link.dropdown-toggle(href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-      i.fas.fa-bell.fa-fw
+      i.fas.fa-bell.fa-lg.fa-fw
       // Counter - Alerts
       if numberOfAlerts > 3
         span.badge.badge-danger.badge-counter 3+
@@ -72,7 +72,7 @@ mixin topBarMessages(numberOfMessages)
   li.nav-item.dropdown.no-arrow.mx-1
     a#messagesDropdown.nav-link.dropdown-toggle(href="#" role="button" data-toggle="dropdown" 
       aria-haspopup="true" aria-expanded="false")
-      i.fas.fa-envelope.fa-fw
+      i.fas.fa-envelope.fa-lg.fa-fw
       // Counter - Messages
       if numberOfMessages > 3
         span.badge.badge-danger.badge-counter 3+

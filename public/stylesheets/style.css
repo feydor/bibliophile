@@ -1,5 +1,4 @@
 body {
-  padding: 15px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   font-weight: 400;
 }
@@ -8,8 +7,10 @@ body {
     margin: auto;
 }
 
-#view-selectors {
-    margin-bottom: 10px;
+/* Puts Table header and view-selectors on the same line */
+.table-header-div {
+  display: flex;
+  justify-content: space-between;
 }
 
 .invalid-input {

@@ -24,20 +24,24 @@ html(lang="en")
       crossorigin="anonymous"
     )
     link(rel="stylesheet", href="stylesheets/normalize.css")
-    //link(rel="stylesheet", href="stylesheets/skeleton.css")
+    //-link(rel="stylesheet", href="stylesheets/skeleton.css")
     link(rel="stylesheet", href="stylesheets/sb-admin-2.css")
     link(rel="stylesheet", href="stylesheets/style.css")
 
-    <!-- Fonts -->
-    <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-    link(
-      href="https://fonts.googleapis.com/css?family=Roboto",
-      rel="stylesheet",
-      type="text/css"
-    )
-    script(src="https://kit.fontawesome.com/000a2c7fa0.js", crossorigin="anonymous")
 
-    title virtual-library-login-portal: #{title}
+  <!-- Fonts -->
+  <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  link(
+    href="https://fonts.googleapis.com/css?family=Roboto",
+    rel="stylesheet",
+    type="text/css"
+  )
+
+  <!-- Scripts -->
+  <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  script(src="https://kit.fontawesome.com/000a2c7fa0.js", crossorigin="anonymous")
+
+  title virtual-library-login-portal: #{title}
 
   <!-- Pug mixins -->
   <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -50,7 +54,7 @@ html(lang="en")
     div#wrapper
 
       // Sidebar
-      ul#accordianSidebar.navbar-nav.bg-gray-900.sidebar.sidebar-dark.accordian
+      ul#accordianSidebar.navbar-nav.bg-primary.sidebar.sidebar-dark.accordian.toggled
         // Sidebar - Brand
         a.sidebar-brand.d-flex.align-items-center.justify-content-center(href="/")
           div.sidebar-brand-icon.rotate-n-15
@@ -149,8 +153,8 @@ html(lang="en")
                     span.mr-2.d-none.d-lg-inline.text-gray-600.small USERNAME
                     img.img-profile.rounded-circle(src="images/undraw_profile.svg")
                   // Dropdown - User Information (toggle class show)
-                  div.dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby="userDropdown")
-                    a.dropdown-item(href="#")
+                  div#userDropdownMenu.dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby="userDropdown")
+                    a.dropdown-item(href="#") 
                       i.fas.fa-user.fa-sm.fa-fw.mr-2.text-gray-400 
                       span Profile
                     a.dropdown-item(href="#")
@@ -168,7 +172,10 @@ html(lang="en")
                         span Logout
                   
           
-          // END of Topbar          
+          // END of Topbar    
+
+          // Javascripts
+          script(type="text/javascript" src="javascripts/sidebar.js")
           
           // Begin Page Content
           div.container-fluid

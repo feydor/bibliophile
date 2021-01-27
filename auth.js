@@ -1,6 +1,6 @@
 var okta = require('@okta/okta-sdk-nodejs');
 var ExpressOIDC = require('@okta/oidc-middleware').ExpressOIDC;
-const dbconnection = require('./db'); // async function, returns Promise
+const db = require('./db'); // async function, returns Promise
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
@@ -58,7 +58,6 @@ let updateUserId = async (req, res, next) => {
     throw console.error("addUser middleware not running.");
   }
   
-  let db = await dbconnection();
   const [ rows ] = await db.execute('SELECT id FROM users WHERE users.username = ?',
     [ req.user.profile.login ]);
   
