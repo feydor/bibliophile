@@ -1,19 +1,19 @@
-const mysql = require('mysql2/promise');
+const mysql = require("mysql2/promise");
 
 var promisePool;
 
 const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'dev',
-  password: '321',
-  database: 'library',
+  host: "localhost",
+  user: "dev",
+  password: "321",
+  database: "library",
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
 });
 
 // const connection = async () => {
-//   const promisePool = await pool.promise();  
+//   const promisePool = await pool.promise();
 // };
 
 // const connection = () => {
@@ -41,7 +41,6 @@ const pool = mysql.createPool({
 //   });
 // };
 
-
 // const getConnection = async () => {
 //   try {
 //     promisePool = pool.promise();
@@ -64,7 +63,7 @@ const pool = mysql.createPool({
 //   } catch (error) {
 //     console.error(error);
 //   }
-  
+
 //   dbcon.connect();
 //   console.log("Connected to MySQL db!");
 //   return dbcon;
@@ -85,4 +84,3 @@ dbcon.connect(function (err) {
 });
 */
 module.exports = pool;
-

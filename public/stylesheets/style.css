@@ -3,8 +3,9 @@ body {
   font-weight: 400;
 }
 
-#list-view, #gallery-view {
-    margin: auto;
+#list-view,
+#gallery-view {
+  margin: auto;
 }
 
 /* Puts Table header and view-selectors on the same line */
@@ -18,15 +19,15 @@ body {
 }
 
 #cancelButton {
-    margin-left: 5px;
-    margin: auto;
+  margin-left: 5px;
+  margin: auto;
 }
 
 #submitButton {
   margin: auto;
 }
 #submitButton:disabled {
-  opacity: 0.65; 
+  opacity: 0.65;
   cursor: not-allowed;
 }
 
@@ -62,24 +63,24 @@ body {
 }
 
 .dark-mode {
-    background-color: #121212;
-    color: white;
-    font-weight: 350;
+  background-color: #121212;
+  color: white;
+  font-weight: 350;
 }
 
 .dark-mode input {
-    color: black;
+  color: black;
 }
 .dark-mode label {
-    color: black;
+  color: black;
 }
 
 a {
-  color: #00B7FF;
+  color: #00b7ff;
 }
 
 footer {
-  border-top: 1px solid rgba(0,0,0,.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
   margin-top: 4em !important;
   padding-top: 1em;
   text-align: center;

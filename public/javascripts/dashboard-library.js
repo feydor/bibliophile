@@ -56,7 +56,7 @@ window.addEventListener("load", () => {
     renderBookList();
   } else {
     // get BookList from server
-    getBookList().then(data => {
+    getBookList().then((data) => {
       // if data.books is empty, render the add books form
       // and hide the view selectors and #bookListCard
       if (data.books.length === 0) {
@@ -73,7 +73,6 @@ window.addEventListener("load", () => {
     });
   }
 });
-
 
 /**
  * Renders the BookList using the current view
@@ -92,12 +91,12 @@ function renderBookList() {
 
     // Render DataTable
     try {
-      Table = $('#dataTable').DataTable();
-    } catch(error) {
+      Table = $("#dataTable").DataTable();
+    } catch (error) {
       // supress errors
       //console.error(error);
     }
-    
+
     // add button-primary css class to list-view button, remove from the other
     document.getElementById("list-view").classList.add("button-primary");
     document.getElementById("gallery-view").classList.remove("button-primary");
@@ -109,7 +108,6 @@ function renderBookList() {
     document.getElementById("list-view").classList.remove("button-primary");
   }
 }
-
 
 /**
  * Returns an html table containing the booklist
@@ -143,7 +141,13 @@ function createListNode(bookList) {
     tableHeadings = ["Title", "Author", "Subject"];
     keysToRender = ["title", "author", "subject"];
   } else {
-    tableHeadings = ["Title", "Author", "Publisher", "Published Date", "Subject"];
+    tableHeadings = [
+      "Title",
+      "Author",
+      "Publisher",
+      "Published Date",
+      "Subject",
+    ];
     keysToRender = ["title", "author", "publisher", "publishdate", "subject"];
   }
   tableHeadings.push(""); // extra heading for edit button column
@@ -168,9 +172,9 @@ function createListNode(bookList) {
   let tbody = document.createElement("tbody");
   // dynamic data based on window.innerWidth
   // create a tr, populate it, then append it to tbody
-  bookList.forEach(book => {
+  bookList.forEach((book) => {
     let tr = document.createElement("tr");
-    tr.id = "book" + book.id; 
+    tr.id = "book" + book.id;
     Object.entries(book).forEach(([key, value], idx) => {
       if (keysToRender.includes(key)) {
         let td = document.createElement("td");
@@ -187,8 +191,8 @@ function createListNode(bookList) {
     editButton.addEventListener("click", (event) => {
       let editButtonRow = tr.lastChild;
       let newRow = Table.row(tr);
-      
-      if ( newRow.child.isShown() ) {
+
+      if (newRow.child.isShown()) {
         // This row is already open - close it
         newRow.child.hide();
         editButtonRow.classList.toggle("shown");
@@ -200,10 +204,9 @@ function createListNode(bookList) {
         editButton.appendChild(plusicon);
         editButton.classList.remove("btn-danger");
         editButton.classList.add("btn-success");
-      }
-      else {
+      } else {
         // Open this row
-        newRow.child( format(book) ).show();
+        newRow.child(format(book)).show();
         editButtonRow.classList.add("shown");
         // show minus icon
         editButton.innerHTML = "";
@@ -228,7 +231,7 @@ function createListNode(bookList) {
 }
 
 /* Formatting function for row details section */
-function format ( d ) {
+function format(d) {
   console.log(d);
   return `<div class="container-fluid extra-info-row"> 
             <img src=${d.coverurl} />
@@ -258,9 +261,8 @@ function format ( d ) {
                 <td>${d.isbn ? d.isbn : ""}</td>
               </tr>
             </table>
-        </div>`
+        </div>`;
 }
-
 
 /**
  * Returns an html div containing bookcover images
@@ -282,14 +284,13 @@ function createGalleryNode(booklist) {
 
     let cover = document.createElement("img");
     cover.src = book.coverurl;
-    
+
     card.appendChild(cover);
     root.appendChild(card);
   });
 
   return root;
 }
-
 
 /**
  * Sorts a table by column heading (title, author, etc)
@@ -328,7 +329,6 @@ function sortTable(tableid = "booklist-id", column = 0) {
   return 1;
 }
 
-
 document.getElementById("list-view").addEventListener("click", () => {
   CURRENT_VIEW = VIEW.list;
   renderBookList();
@@ -338,7 +338,6 @@ document.getElementById("gallery-view").addEventListener("click", () => {
   CURRENT_VIEW = VIEW.gallery;
   renderBookList();
 });
-
 
 /**
  * Populates and renders the add-book form
@@ -412,7 +411,7 @@ function renderAddBookForm() {
   let isbnInput = document.createElement("input");
   isbnInput.classList.add("form-control");
   isbnInput.setAttribute("type", "tel");
-  isbnInput.setAttribute("pattern", "[0-9]*")
+  isbnInput.setAttribute("pattern", "[0-9]*");
   isbnInput.setAttribute("placeholder", "Enter ISBN");
   isbnInput.setAttribute("id", "isbnInput");
   isbnInput.setAttribute("name", "isbnInput");
@@ -420,7 +419,7 @@ function renderAddBookForm() {
   // validate input as the user types (10 or 13 digit isbn)
   let timeout = null;
   isbnInput.addEventListener("input", () => {
-    // throttle input checking for 1 second 
+    // throttle input checking for 1 second
     // Clear the timeout if it has already been set.
     // This will prevent the previous task from executing
     // if it has been less than <MILLISECONDS>
@@ -433,26 +432,24 @@ function renderAddBookForm() {
 
       if (regex.test(isbnInput.value)) {
         console.log("Valid isbn:", isbn.value);
-        
-        isbn.classList.remove(".invalid-input"); 
+
+        isbn.classList.remove(".invalid-input");
         document.getElementById("submitButton").disabled = "";
         return;
       } else {
         console.log("Invalid isbn:", isbn.value);
-        isbn.classList.toggle(".invalid-input"); 
-        
+        isbn.classList.toggle(".invalid-input");
+
         // make submitButton unclickable
         document.getElementById("submitButton").disabled = "true";
-        // show tooltip to ask user to input valid isbn 
+        // show tooltip to ask user to input valid isbn
         return;
       }
     }, 500);
-
-    
   });
   isbnGroup.appendChild(isbnLabel);
   isbnGroup.appendChild(isbnInput);
-  rootNode.appendChild(isbnGroup)
+  rootNode.appendChild(isbnGroup);
 
   // submit and cancel buttons
   let submitButton = document.createElement("button");
@@ -473,7 +470,7 @@ function renderAddBookForm() {
     ADDBUTTON.style.display = "";
   });
   rootNode.appendChild(cancelButton);
-  
+
   // render invisible toolTip, to be shown by onchange even handlers
   let toolTip = document.createElement("div");
   toolTip.id = "toolTip";
@@ -484,27 +481,26 @@ function renderAddBookForm() {
   FORMNODE.classList.add("rendered");
 }
 
-
 // Populates a form to add a book to the library
 ADDBUTTON.addEventListener("click", () => {
   renderAddBookForm();
   // scroll to form
-  window.scrollBy(0,336);
+  window.scrollBy(0, 336);
 });
 
 /**
  * Handles pressing the submit button in the add books form
  *
  * @return {number} 1 for success, 0 for failure.
- */ 
+ */
 FORMNODE.addEventListener("submit", (event) => {
   // Prevent form from submitting to the server
   event.preventDefault();
-  
+
   // first, hide the form node and redisplay the add book button
   FORMNODE.style.display = "none";
   ADDBUTTON.style.display = "";
-  
+
   // extract data from inputs
   let data = {
     title: document.getElementById("titleInput").value,
@@ -521,7 +517,7 @@ FORMNODE.addEventListener("submit", (event) => {
     // show the result
     console.log(`Done, got ${xhr.response.length} bytes`); // response is the server response
     console.log(xhr.response);
-    window.location.href = DOMAIN + 'dashboard';
+    window.location.href = DOMAIN + "dashboard";
   };
 });
 

@@ -3,7 +3,7 @@ const router = express.Router();
 const fetch = require("node-fetch");
 
 // import custom db module
-const db = require("./db");   
+const db = require("./db");
 
 // Ideas for possible middlewares
 // 1. Check for OpenLibrary API book and pass it down as Book
@@ -18,11 +18,11 @@ router.get("/", async (req, res) => {
   if (!req.user) {
     throw console.error("addUser middleware not running");
   }
-  
+
   let books = [];
   books = await getUserBooks(req.user.profile.login);
-  console.log('GET /books: ', books);
-  
+  console.log("GET /books: ", books);
+
   // pass hasBooks bool to html rendering engine (pugjs)
   //res.locals.hasBooks = books.length > 0 ? true : false;
 
@@ -37,7 +37,7 @@ router.get("/", async (req, res) => {
 const getUserBooks = async (username) => {
   let query = `SELECT * FROM books INNER JOIN library ON books.id = library.bookid
               INNER JOIN users ON users.id = library.userid WHERE users.username = ?;`;
-  const [ rows ] = await db.execute(query, [ username ]);
+  const [rows] = await db.execute(query, [username]);
   return rows.map((row) => {
     return {
       id: row.bookid,
@@ -47,11 +47,10 @@ const getUserBooks = async (username) => {
       publishdate: row.publish_date,
       isbn: row.isbn,
       subject: row.subject,
-      coverurl: row.coverurl
+      coverurl: row.coverurl,
     };
   });
 };
-
 
 // POST endpoints
 //////////////////////
@@ -101,7 +100,7 @@ router.post("/", async function (req, res) {
     if (parseInt(isbn)) {
       if (isbn.length === 10 || isbn.length === 13) {
         return true;
-      }  
+      }
     }
 
     return false;
@@ -120,7 +119,7 @@ router.post("/", async function (req, res) {
     );
 
     if (!response.ok) {
-      const message = `An error has occured: ${response.status}`; 
+      const message = `An error has occured: ${response.status}`;
       throw new Error(message);
     }
 
@@ -131,7 +130,7 @@ router.post("/", async function (req, res) {
   var apibooks;
   try {
     apibooks = await fetchOLApi();
-  } catch(error) {
+  } catch (error) {
     console.error(error);
   }
 
@@ -143,12 +142,12 @@ router.post("/", async function (req, res) {
     return res.send({ status: 400, statusTxt: "Book does not exist." });
   }
 
-  // if title and/author were not provided in body, use OL api 
+  // if title and/author were not provided in body, use OL api
   if (book.title.length === 0 || book.author.length === 0) {
     if (apibooks[`ISBN:${book.isbn}`]["title"]) {
       book.title = apibooks[`ISBN:${book.isbn}`]["title"];
     }
-    
+
     if (apibooks[`ISBN:${book.isbn}`]["authors"]) {
       book.author = apibooks[`ISBN:${book.isbn}`]["authors"][0]["name"];
     }
@@ -177,64 +176,64 @@ router.post("/", async function (req, res) {
   //   add the bookid and user id to a row in library.library
   // else if pre-exisitng book,
   //   get the book's id,
-  //   then store userid and bookid relation in library.library 
+  //   then store userid and bookid relation in library.library
   console.log("req.userid=", req.userid);
   var bookid;
   let bookDoesExist = await bookExists(book.isbn);
   if (!bookDoesExist) {
     let insertedBook = await insertBook(book);
     if (!insertedBook) {
-      console.error('Failed to insert book.');
+      console.error("Failed to insert book.");
     }
-    
+
     bookid = await getBookId(book.isbn);
     console.log("bookid: ", bookid);
 
-    let updatedLibrary = await updateLibrary(req.userid, bookid)   
+    let updatedLibrary = await updateLibrary(req.userid, bookid);
     if (!updatedLibrary) {
-      console.error('Failed to update library.');
+      console.error("Failed to update library.");
     }
   } else {
     bookid = await getBookId(book.title);
     console.log("bookid: ", bookid);
-    
-    let updatedLibrary = await updateLibrary(req.userid, bookid)   
+
+    let updatedLibrary = await updateLibrary(req.userid, bookid);
     if (!updatedLibrary) {
-      console.error('Failed to update library.');
+      console.error("Failed to update library.");
     }
   }
-  
+
   return res.send({
     status: 200,
     statusTxt: "OK",
     book: book,
   });
-
 });
-
 
 // Query functions
 // searches library.books for matching isbn
 // returns TRUE if found
 const bookExists = async (isbn) => {
-  const [ rows ] = await db.execute(`SELECT title FROM books WHERE books.isbn = ?`,
-    [ isbn ],);
-  
+  const [
+    rows,
+  ] = await db.execute(`SELECT title FROM books WHERE books.isbn = ?`, [isbn]);
+
   return rows && rows.length > 0 ? true : false;
 };
 
 // returns the bookid for the book in library.book that matches the isbn param
 // if the book doesn't exist, it returns 0
 const getBookId = async (isbn) => {
-  const [ rows ] = await db.execute(`SELECT id FROM books WHERE books.isbn = ?`,
-    [ isbn ],);
+  const [rows] = await db.execute(`SELECT id FROM books WHERE books.isbn = ?`, [
+    isbn,
+  ]);
 
   return rows && rows.length > 0 ? rows[0].id : 0;
 };
 
 // inserts the book into library.books
 const insertBook = async (book) => {
-  const [ rows ] = await db.execute(
+  const [rows] = await db.execute(
     `INSERT INTO books(title, author, isbn, publisher, publish_date,
      subject, coverurl) VALUES(?, ?, ?, ?, ?, ?, ?)`,
     [
@@ -245,17 +244,19 @@ const insertBook = async (book) => {
       book.publish_date,
       book.subject,
       book.coverurl,
-    ]);
-    
+    ]
+  );
+
   return rows && rows.affectedRows > 0 ? true : false;
 };
 
 // inserts an entry into library.library containing a userid paired with a bookid
 const updateLibrary = async (userid, bookid) => {
-  const [ rows ] = await db.execute(
+  const [rows] = await db.execute(
     `INSERT INTO library (userid, bookid)
      VALUE(?, ?)`,
-    [ userid, bookid ]);
+    [userid, bookid]
+  );
 
   return rows && rows.affectedRows > 0 ? true : false;
 };

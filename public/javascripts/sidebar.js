@@ -1,4 +1,4 @@
-(function() {
+(function () {
   "use strict"; // Start of use strict
 
   // Toggle the side navigation
@@ -13,12 +13,11 @@
       //document.querySelector(".collapse");
     }
   };
-  
+
   let sidebarToggle = document.getElementById("sidebarToggle");
   let sidebarToggleTop = document.getElementById("sidebarToggleTop");
   sidebarToggle.addEventListener("click", sidebarToggleEventListener);
   sidebarToggleTop.addEventListener("click", sidebarToggleEventListener);
-
 
   // Close any open menu accordions when window is resized below 768px
   window.addEventListener("resize", () => {
@@ -27,17 +26,17 @@
       // $('.sidebar .collapse').collapse('hide');
       document.querySelector("body").classList.toggle("toggled");
       document.querySelector(".sidebar").classList.toggle("toggled");
-
     }
-    
-    // Toggle the side navigation when window is resized below 480px
-    if (window.innerWidth < 480 && 
-      !document.querySelector(".sidebar").classList.contains("toggled")) {
-        document.querySelector("body").classList.add("sidebar-toggled");
-        document.querySelector(".sidebar").classList.add("toggled");
-        // $('.sidebar .collapse').collapse('hide');
-      }
 
+    // Toggle the side navigation when window is resized below 480px
+    if (
+      window.innerWidth < 480 &&
+      !document.querySelector(".sidebar").classList.contains("toggled")
+    ) {
+      document.querySelector("body").classList.add("sidebar-toggled");
+      document.querySelector(".sidebar").classList.add("toggled");
+      // $('.sidebar .collapse').collapse('hide');
+    }
   });
 
   // Toggle the user profile dropdown
@@ -57,7 +56,6 @@
   // document.querySelector(".scroll-to-top").addEventListener("click", () => {
   //  scrollToTop();
   // });
-
 
   // Prevent the content wrapper from scrolling when the fixed side navigation hovered over
   // $('body.fixed-nav .sidebar').on('mousewheel DOMMouseScroll wheel', function(e) {
@@ -87,5 +85,4 @@
   //   }, 1000, 'easeInOutExpo');
   //   e.preventDefault();
   // });
-
 })(); // End of use strict
