@@ -45,6 +45,20 @@
     document.getElementById("userDropdownMenu").classList.toggle("show");
   });
 
+  // Scroll to top button
+  const scrollToTop = () => {
+    const c = document.documentElement.scrollTop || document.body.scrollTop;
+    if (c > 0) {
+      window.requestAnimationFrame(scrollToTop);
+      window.scrollTo(0, c - c / 8);
+    }
+  };
+
+  // document.querySelector(".scroll-to-top").addEventListener("click", () => {
+  //  scrollToTop();
+  // });
+
+
   // Prevent the content wrapper from scrolling when the fixed side navigation hovered over
   // $('body.fixed-nav .sidebar').on('mousewheel DOMMouseScroll wheel', function(e) {
   //   if ($(window).width() > 768) {

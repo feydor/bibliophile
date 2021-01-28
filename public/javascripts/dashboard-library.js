@@ -10,6 +10,7 @@ const BOOKLIST_CONTAINER = document.getElementById("booklist-container");
 const FORMNODE = document.getElementById("add-book-form");
 const ADDBUTTON = document.getElementById("add-book-button");
 const MAX_URL_LENGTH = 45;
+const BREAKPOINT = 768;
 
 // enumeration of all possible view states (for booklist)
 const VIEW = {
@@ -23,7 +24,7 @@ let CURRENT_VIEW = VIEW.list;
 
 // local cache array
 let BookList = [];
-
+let Table;
 
 /**
  * GETs the user's booklist from backend
@@ -91,8 +92,9 @@ function renderBookList() {
 
     // Render DataTable
     try {
-      $('#dataTable').DataTable();
+      Table = $('#dataTable').DataTable();
     } catch(error) {
+      // supress errors
       //console.error(error);
     }
     
@@ -122,7 +124,7 @@ function renderBookList() {
 //     ...
 //   </thead>
 //   <tbody>
-//     <tr>a</tr>
+//     <tr id="book1">a</tr>
 //     ...
 //   </tbody>
 // </table>
@@ -133,17 +135,18 @@ function createListNode(bookList) {
   root.style.marginBottom = "25px";
   root.alphanum = true; // toggle boolean for alphanum and reverse sorting
 
-  // iterate over each book in the list
-  // adding to the table headings when a unique 'key' is encountered
-  let tableHeadings = []; // unique
-  bookList.forEach((book) => {
-    Object.entries(book).forEach(([key, value]) => {
-      let keyCapitalized = key.charAt(0).toUpperCase() + key.slice(1);
-      tableHeadings.find((elem) => elem === keyCapitalized) !== undefined
-        ? ""
-        : tableHeadings.push(keyCapitalized);
-    });
-  });
+  // if window.innerWidth < 768px, then show less columns
+  // else show normal columns
+  let tableHeadings = [];
+  let keysToRender = []; // get exact spelling from GET /books
+  if (window.innerWidth < BREAKPOINT) {
+    tableHeadings = ["Title", "Author", "Subject"];
+    keysToRender = ["title", "author", "subject"];
+  } else {
+    tableHeadings = ["Title", "Author", "Publisher", "Published Date", "Subject"];
+    keysToRender = ["title", "author", "publisher", "publishdate", "subject"];
+  }
+  tableHeadings.push(""); // extra heading for edit button column
 
   // add table headings to table
   let thead = document.createElement("thead");
@@ -163,19 +166,99 @@ function createListNode(bookList) {
   // add table datum to table
   // 1 row per book (bookList.length)
   let tbody = document.createElement("tbody");
+  // dynamic data based on window.innerWidth
   // create a tr, populate it, then append it to tbody
-  bookList.forEach((book) => {
+  bookList.forEach(book => {
     let tr = document.createElement("tr");
-    Object.entries(book).forEach(([key, value]) => {
-      let td = document.createElement("td");
-      td.textContent = value;
-      tr.appendChild(td);
+    tr.id = "book" + book.id; 
+    Object.entries(book).forEach(([key, value], idx) => {
+      if (keysToRender.includes(key)) {
+        let td = document.createElement("td");
+        td.textContent = value;
+        tr.appendChild(td);
+      }
     });
+
+    // after all data is added, add edit button
+    let td = document.createElement("td");
+    let editButton = document.createElement("button");
+    editButton.id = "edit" + tr.id;
+    editButton.classList.add("btn", "btn-sm", "btn-success");
+    editButton.addEventListener("click", (event) => {
+      let editButtonRow = tr.lastChild;
+      let newRow = Table.row(tr);
+      
+      if ( newRow.child.isShown() ) {
+        // This row is already open - close it
+        newRow.child.hide();
+        editButtonRow.classList.toggle("shown");
+        editButtonRow.classList.remove("shown");
+        // show plus icon
+        editButton.innerHTML = "";
+        let plusicon = document.createElement("i");
+        plusicon.classList.add("fa", "fa-plus");
+        editButton.appendChild(plusicon);
+        editButton.classList.remove("btn-danger");
+        editButton.classList.add("btn-success");
+      }
+      else {
+        // Open this row
+        newRow.child( format(book) ).show();
+        editButtonRow.classList.add("shown");
+        // show minus icon
+        editButton.innerHTML = "";
+        let minusicon = document.createElement("i");
+        minusicon.classList.add("fa", "fa-minus");
+        editButton.appendChild(minusicon);
+        editButton.classList.remove("btn-success");
+        editButton.classList.add("btn-danger");
+      }
+    });
+    let plusicon = document.createElement("i");
+    plusicon.classList.add("fa", "fa-plus");
+    editButton.appendChild(plusicon);
+    td.appendChild(editButton);
+    tr.appendChild(td);
+
     tbody.appendChild(tr);
   });
 
   root.appendChild(tbody);
   return root;
+}
+
+/* Formatting function for row details section */
+function format ( d ) {
+  console.log(d);
+  return `<div class="container-fluid extra-info-row"> 
+            <img src=${d.coverurl} />
+            <table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px">
+              <tr>
+                <td>Title:</td>
+                <td>${d.title ? d.title : ""}</td>
+              </tr>
+              <tr>
+                <td>Author:</td>
+                <td>${d.author ? d.author : ""}</td>
+              </tr>
+              <tr>
+                <td>Subject:</td>
+                <td>${d.subject ? d.subject : ""}</td>
+              </tr>
+              <tr>
+                <td>Publisher:</td>
+                <td>${d.publisher ? d.publisher : ""}</td>
+              </tr>
+              <tr>
+                <td>Published Date:</td>
+                <td>${d.publishdate ? d.publishdate : ""}</td>
+              </tr>
+              <tr>
+                <td>ISBN:</td>
+                <td>${d.isbn ? d.isbn : ""}</td>
+              </tr>
+            </table>
+        </div>`
 }
 
 
@@ -194,18 +277,14 @@ function createGalleryNode(booklist) {
   let root = document.createElement("div");
   root.id = "gallery";
   booklist.forEach((book) => {
-    // TODO: In server.js, upon getting an addbook request,
-    // update the data using openlibrary api OR eventually
-    // update the data on serverside BEFORE the user submits
-    //
-    // GET request to openlibrary api (https://openlibrary.org/dev/docs/api/books)
-    // ex: https://openlibrary.org/api/books?bibkeys=ISBN:0451526538
-    // then get thumbnail_url from response
+    let card = document.createElement("div");
+    card.classList.add("card", "shadow");
+
     let cover = document.createElement("img");
-    // OLD method
-    // cover.src = `http://covers.openlibrary.org/b/isbn/${book.isbn10}-M.jpg`;
     cover.src = book.coverurl;
-    root.appendChild(cover);
+    
+    card.appendChild(cover);
+    root.appendChild(card);
   });
 
   return root;
@@ -409,6 +488,8 @@ function renderAddBookForm() {
 // Populates a form to add a book to the library
 ADDBUTTON.addEventListener("click", () => {
   renderAddBookForm();
+  // scroll to form
+  window.scrollBy(0,336);
 });
 
 /**

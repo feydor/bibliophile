@@ -23,6 +23,9 @@ router.get("/", async (req, res) => {
   books = await getUserBooks(req.user.profile.login);
   console.log('GET /books: ', books);
   
+  // pass hasBooks bool to html rendering engine (pugjs)
+  //res.locals.hasBooks = books.length > 0 ? true : false;
+
   return res.send({
     books: books,
     status: 200,
@@ -35,12 +38,14 @@ const getUserBooks = async (username) => {
   let query = `SELECT * FROM books INNER JOIN library ON books.id = library.bookid
               INNER JOIN users ON users.id = library.userid WHERE users.username = ?;`;
   const [ rows ] = await db.execute(query, [ username ]);
-  // TODO: populate books array with book objects with variable properties
-  // For now, only return title, author, subject, publisher, date
   return rows.map((row) => {
     return {
+      id: row.bookid,
       title: row.title,
       author: row.author,
+      publisher: row.publisher,
+      publishdate: row.publish_date,
+      isbn: row.isbn,
       subject: row.subject,
       coverurl: row.coverurl
     };

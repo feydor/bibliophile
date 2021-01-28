@@ -150,7 +150,7 @@ html(lang="en")
                 else
                   a#userDropdown.nav-link.dropdown-toggle(href="#" role="button" data-toggle="dropdown" 
                     aria-haspopup="true" aria-expanded="false")
-                    span.mr-2.d-none.d-lg-inline.text-gray-600.small USERNAME
+                    span.mr-2.d-none.d-lg-inline.text-gray-600.small= user.profile.login
                     img.img-profile.rounded-circle(src="images/undraw_profile.svg")
                   // Dropdown - User Information (toggle class show)
                   div#userDropdownMenu.dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby="userDropdown")

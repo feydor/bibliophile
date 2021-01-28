@@ -34,6 +34,33 @@ body {
   margin: 0;
 }
 
+/* Aligns book covers in gallery view */
+#gallery {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+/* Adds space between book cover cards */
+#gallery .card {
+  margin: 5px;
+}
+
+/* Stretches cover image across the .card div */
+#gallery .card img {
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Fixes alignment of extra description dropdown row in table */
+.extra-info-row {
+  display: flex;
+  justify-content: center;
+}
+
 .dark-mode {
     background-color: #121212;
     color: white;
@@ -43,14 +70,12 @@ body {
 .dark-mode input {
     color: black;
 }
+.dark-mode label {
+    color: black;
+}
 
 a {
   color: #00B7FF;
-}
-
-.top-bar a {
-  text-decoration: none;
-  color: inherit;
 }
 
 footer {
@@ -67,4 +92,9 @@ h2 {
 
 .container {
   padding-top: 2em;
+}
+
+/* smooth scroll after hitting add form button */
+html {
+  scroll-behavior: smooth;
 }
