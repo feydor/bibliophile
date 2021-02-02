@@ -1,0 +1,46 @@
+block header
+  // block specific stylesheet
+  link(rel="stylesheet" href="stylesheets/header.css")
+
+  // ======= Header =======
+  header#header.header.fixed-top
+    div.container-fluid.container-xl.d-flex.align-items-center.justify-content-between
+      
+      a.logo.d-flex.align-items-center(href="/")
+        img(src="images/logo.png" alt="logo")  
+        span Bibliophile
+
+      nav#navbar.navbar
+        ul
+          li
+            a.nav-link.active(href="#") Home
+          li
+            a.nav-link.active(href="/dashboard") Library
+          li
+            a.nav-link(href="#")
+              if user
+                span= user.profile.login
+                //img.img-fluid(src="images/undraw_profile.svg")
+              else
+                span= USERNAME
+            div#userDropdown.dropdown
+              ul
+                li
+                  a(href="#")
+                    i.bi.bi-user
+                    span Profile
+                li
+                  a(href="#")
+                    i.bi.bi-cogs
+                    span Settings
+                li
+                  hr
+                li
+                  form#logoutForm(method="post" action="logout")
+                    a(href="javascript:{}" onclick="document.getElementById('logoutForm').submit();"
+                    )
+                      i.bi.bi-sign-out
+                      span Logout
+                  
+        i.bi.bi-list.mobile-nav-toggle
+  // -- End Header --

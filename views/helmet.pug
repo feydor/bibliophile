@@ -1,0 +1,47 @@
+block variables
+
+doctype html
+html(lang="en")
+  head
+    <!-- Basic Page Needs -->
+    <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    meta(charset="utf-8")
+    meta(
+      name="viewport",
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    )
+
+    <!-- Favicon -->
+    <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    link(rel="shortcut icon", href="images/favicon.ico", type="image/x-icon")
+
+    <!-- CSS -->
+    <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    link(rel="stylesheet", href="stylesheets/normalize.css")
+    
+    // Vendor CSS Files
+    link(href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet")
+    link(href="vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet")
+    link(href="vendor/aos/aos.css" rel="stylesheet")
+
+    <!-- Fonts -->
+    <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    link(
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" 
+    rel="stylesheet")
+
+    <!-- Scripts -->
+    <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    script(src="https://kit.fontawesome.com/000a2c7fa0.js", crossorigin="anonymous")
+
+    title virtual-library-login-portal: #{title}
+    
+    <!-- Pug mixins -->
+    <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    include mixins/mixins.pug
+
+  block page
+
+  // Vender JS
+  script(src="vendor/bootstrap/js/bootstrap.bundle.js")
+  script(src="vendor/aos/aos.js")

@@ -1,5 +1,11 @@
 <!-- Pug mixins -->
 <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+mixin brandingLink(brandText) 
+  a.sidebar-brand.d-flex.align-items-center.justify-content-center(href="/")
+    div.sidebar-brand-icon.rotate-n-15
+      i.fas.fa-book
+    div.sidebar-brand-text.mx-3= brandText
+
 mixin sidebarMessageCard(imgsrc, strToEmphasize, message, link, linkStr)
   .sidebar-card
     img.sidebar-card-illustration.mb-2(src=imgsrc alt="")
@@ -85,3 +91,57 @@ mixin topBarMessages(numberOfMessages)
       // Add messages after here
       block
       a.dropdown-item.text-center.small.text-gray-500(href="#") Read More Messages
+
+mixin accordianSidebar()
+  ul#accordianSidebar.navbar-nav.bg-primary.sidebar.sidebar-dark.accordian.toggled
+    // Sidebar - Brand
+    a.sidebar-brand.d-flex.align-items-center.justify-content-center(href="/")
+      div.sidebar-brand-icon.rotate-n-15
+        i.fas.fa-book
+      div.sidebar-brand-text.mx-3 VLibrary
+
+    // Sidebar - Divider
+    hr.sidebar-divider.my-0
+    
+    // TODO: if user == undefined show HOME else show DASHBOARD
+    // Nav Item - Home
+    li.nav-item.active
+      a.nav-link(href="/")
+        i.fas.fa-fw.fa-home
+        span Home
+
+    // Nav Item - Dashboard
+    li.nav-item.active
+      a.nav-link(href="/dashboard")
+        i.fas.fa-fw.fa-tachometer-alt
+        span Dashboard
+    
+    hr.sidebar-divider
+    
+    // Sidebar - Heading
+    div.sidebar-heading Interface
+
+    // Nav Item - Pages Collapse Menu
+    li.nav-item
+      a.nav-link.collapsed(href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo")
+        i.fas.fa-fw.fa-cog
+        span Components
+      div.collapse#collapseTwo(aria-labelledby="headingTwo" data-parent="#accordionSidebar")
+        div.bg-white.py-2.collapse-inner.rounded
+          h6.collapse-header Custom Components:
+          a.collapse-item(href="#") Buttons
+          a.collapse-item(href="#") Cards
+
+    hr.sidebar-divider
+
+    // Sidebar - Sidebar toggler (toggle class toggled on #accordianSidebar)
+    .text-center.d-none.d-md-inline
+      button#sidebarToggle.rounded-circle.border-0
+
+    // Sidebar Message
+    .sidebar-card
+      img.sidebar-card-illustration.mb-2(src="images/undraw_rocket.svg" alt="")
+      p.text-center.mb-2 #[strong Virtual Library] is packed with premium features and more!
+      a.btn.btn-success.btn-sm(href="#") Start!
+
+  // END of Sidebar

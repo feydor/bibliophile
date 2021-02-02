@@ -67,7 +67,7 @@ window.addEventListener("load", () => {
         document.getElementById("bookListCard").style.display = "";
         document.querySelector(".view-selectors").style.display = "";
       }
-
+    
       BookList = data.books;
       renderBookList();
     });
@@ -91,7 +91,14 @@ function renderBookList() {
 
     // Render DataTable
     try {
-      Table = $("#dataTable").DataTable();
+      Table = $("#dataTable").DataTable({       
+        "paging":   false,
+        "ordering": false,
+        "info":     false,
+        "searching": false,
+        "scrollCollapse": true,
+        "scrollx": false
+      });
     } catch (error) {
       // supress errors
       //console.error(error);
@@ -128,7 +135,7 @@ function renderBookList() {
 // </table>
 function createListNode(bookList) {
   let root = document.createElement("table");
-  root.classList.add("u-full-width");
+  root.classList.add("u-full-width", "table-hover");
   root.id = "dataTable";
   root.style.marginBottom = "25px";
   root.alphanum = true; // toggle boolean for alphanum and reverse sorting
@@ -519,6 +526,24 @@ FORMNODE.addEventListener("submit", (event) => {
     console.log(xhr.response);
     window.location.href = DOMAIN + "dashboard";
   };
+});
+
+
+/**
+ * @description triggers tab changing between tabs in ul with id #libraryTabNav
+ *
+ */
+window.addEventListener("load", () => {
+  var triggerTabList = [].slice.call(document.querySelectorAll('#libraryTabNav a'))
+  triggerTabList.forEach(function (triggerEl) {
+    var tabTrigger = new bootstrap.Tab(triggerEl);
+
+    triggerEl.addEventListener('click', function (event) {
+      event.preventDefault();
+      tabTrigger.show();
+    })
+  });
+
 });
 
 console.log("app.js loaded!");

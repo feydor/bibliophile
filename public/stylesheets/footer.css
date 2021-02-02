@@ -1,0 +1,20 @@
+/**
+ *  Stylesheet for footer.pug
+ */
+
+.footer {
+  width: 100%;
+  padding-bottom: 2vh;
+  background-color: var(--secondary-color);
+  background-image: linear-gradient(45deg, var(--secondary-color) 0%, var(--tertiary-color) 100%);
+}
+
+.footer .footer-links a {
+  font-size: 30px;
+  color: var(--text-color);
+}
+
+.footer .social-link {
+  margin: 0 10px 5px 10px;
+}
+

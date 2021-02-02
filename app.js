@@ -41,7 +41,7 @@ app.use(
 app.use(auth.oidc.router);
 
 // enable routes
-app.use("/", publicRouter);
+app.use("/", auth.addUser, publicRouter);
 app.use("/dashboard", auth.addUser, auth.loginRequired, dashboardRouter);
 app.use("/users", auth.addUser, usersRouter);
 app.use("/books", auth.addUser, auth.updateUserId, booksRouter);

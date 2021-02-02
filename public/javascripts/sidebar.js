@@ -14,6 +14,7 @@
     }
   };
 
+  /*
   let sidebarToggle = document.getElementById("sidebarToggle");
   let sidebarToggleTop = document.getElementById("sidebarToggleTop");
   sidebarToggle.addEventListener("click", sidebarToggleEventListener);
@@ -38,6 +39,7 @@
       // $('.sidebar .collapse').collapse('hide');
     }
   });
+  */
 
   // Toggle the user profile dropdown
   document.getElementById("userDropdown").addEventListener("click", () => {

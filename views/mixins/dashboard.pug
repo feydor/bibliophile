@@ -1,0 +1,38 @@
+// pug.js mixins for views/dashboard
+
+// a table containing the user's library
+mixin YourLibrary
+  div.card.shadow.mb-4
+    div.card-header.py-3
+      div.table-header.d-flex.justify-content-between
+        h5.font-weight-bold Your Library
+        div.view-selectors 
+          button#list-view.view-selected.mr-1.btn.btn-sm.btn-outline-primary
+            i.bi.bi-list
+          button#gallery-view.btn.btn-sm.btn-outline-secondary
+            i.bi.bi-view-list
+    
+    div#bookListCard.card-body
+      div.table-responsive
+        // root node of table
+        #booklist-container.table.m-0(width="100%" cellspacing="0")
+
+    // Add books form
+    div.card-body
+      div.utility-buttons
+        form#add-book-form(method="POST" action="/books")
+        button#add-book-button.btn.btn-primary
+          i.bi.bi-plus(style="font-size: 2rem")
+
+// a table containing the user's reccomended reading list
+mixin YourReccs
+  div.card.shadow.mb-4
+    div.card-header.py-3
+      div.table-header.d-flex.justify-content-between
+        h5.font-weight-bold Your Reccomendations
+    
+    div#reccs-card.card-body
+      // root table node
+      #reccs-container.table.m-0(width="100%" cellspacing="0")
+
+// a graph showing number of books read vs total books

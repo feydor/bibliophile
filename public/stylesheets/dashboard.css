@@ -1,21 +1,16 @@
-body {
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-  font-weight: 400;
-}
-
-#list-view,
-#gallery-view {
-  margin: auto;
-}
-
-/* Puts Table header and view-selectors on the same line */
-.table-header-div {
-  display: flex;
-  justify-content: space-between;
-}
-
+/**
+ * stylesheet for views/dashboard
+ */
 .invalid-input {
   border: red 2px solid;
+}
+
+.table-responsive {
+  padding: 0 10px 0 10px;
+}
+
+#bookListCard {
+  padding-top: 0px;
 }
 
 #cancelButton {
@@ -26,13 +21,10 @@ body {
 #submitButton {
   margin: auto;
 }
+
 #submitButton:disabled {
   opacity: 0.65;
   cursor: not-allowed;
-}
-
-#booklist-table {
-  margin: 0;
 }
 
 /* Aligns book covers in gallery view */
@@ -75,25 +67,6 @@ body {
   color: black;
 }
 
-a {
-  color: #00b7ff;
-}
-
-footer {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  margin-top: 4em !important;
-  padding-top: 1em;
-  text-align: center;
-  margin-top: 1em;
-}
-
-h2 {
-  margin-bottom: 2em;
-}
-
-.container {
-  padding-top: 2em;
-}
 
 /* smooth scroll after hitting add form button */
 html {

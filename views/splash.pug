@@ -1,0 +1,67 @@
+extends helmet
+
+block variables
+  - var title = 'Home';
+
+block page
+  // page specific stylesheets
+  link(rel="stylesheet" href="stylesheets/splash.css")
+
+  body
+    
+    // ======= Splash Section =======
+    // Main blurb fadesup, followed by delayed sub-blurb and a button link to register
+    // animation type and delay are set in data-aos and data-aos-delay (animate on scroll)
+    section#splash.splash.d-flex.align-items-center
+      div.container
+      
+        div.row
+          div.col-lg-6.d-flex.flex-column.justify-content-center
+            h1(data-aos="fade-up") Keep track of your personal library.
+            h2(data-aos="fade-up" data-aos-delay="400") And find your next book to dive into.
+            div(data-aos="fade-up" data-aos-delay="600")
+              div.text-center.text-lg-start
+                a.btn-get-started.scrollto.d-inline-flex.align-items-center.justify-content-center.align-self-center(href="/users/login")
+                  span Get Started
+                  i.bi.bi-arrow-right
+          div.col-lg-6.splash-img(data-aos="zoom-out" data-aos-delay="200")
+            img.img-fluid(src="images/logo.png" alt="bibliophile-logo")
+    // End Splash section
+    
+    main#main
+      // ======= About Section =======
+      // Header blurb fadesup, followed by three feature cards
+      // Main features: 1. Keep track of collection, 2. Keep track of progress, 3. Get reccs
+      section#about.about
+        div.container(data-aos="fade-up")
+        
+          header.section-header
+            h2 Features
+            p The application's three main features
+
+          div.row 
+          
+            div.col-lg-4
+              div.box(data-aos="fade-up" data-aos-delay="200")
+                img.img-fluid(src="images/book.png" alt="features")
+                h3 Catalog
+                p Keep track of your personal collection, analyize your reading.
+        
+            div.col-lg-4.mt-4.mt-lg-0
+              div.box(data-aos="fade-up" data-aos-delay="400")
+                img.img-fluid(src="images/books.png" alt="progress")
+                h3 Progress
+                p Keep track of unread books. Quantify books read.
+            
+            div.col-lg-4.mt-4.mt-lg-0
+              div.box(data-aos="fade-up" data-aos-delay="600")
+                img.img-fluid(src="images/book.png" alt="a star logo on a book")
+                h3 Get new reads
+                p Get relevant reccomendations based on your personal library.
+
+      //-- End About Section --
+
+      include footer
+      
+  // page specific javascripts
+  script(src="javascripts/splash.js")

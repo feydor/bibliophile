@@ -210,7 +210,9 @@ router.post("/", async function (req, res) {
   });
 });
 
-// Query functions
+/**
+ *  Query Functions
+ */ 
 // searches library.books for matching isbn
 // returns TRUE if found
 const bookExists = async (isbn) => {
