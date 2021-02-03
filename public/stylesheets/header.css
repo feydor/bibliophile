@@ -6,7 +6,7 @@
 # Header
 --------------------------------------------------------------*/
 .header {
-  transition: all 0.5s;
+  transition: all 0.1s;
   z-index: 997;
   padding: 20px 0;
 }
@@ -78,19 +78,6 @@
 
 .navbar a:hover, .navbar .active, .navbar li:hover > a {
   color: #4154f1;
-}
-
-.navbar .getstarted {
-  background: #4154f1;
-  padding: 8px 20px;
-  margin-left: 30px;
-  border-radius: 4px;
-  color: #fff;
-}
-
-.navbar .getstarted:hover {
-  color: #fff;
-  background: #5969f3;
 }
 
 .navbar .dropdown ul {
@@ -181,6 +168,16 @@
   }
 }
 
+.mobile-sidebar {
+  display: none;
+  color: #012970;
+  font-size: 28px;
+}
+
+.mobile-sidebar.show {
+  display: block;
+}
+
 .navbar-mobile {
   position: fixed;
   overflow: hidden;
@@ -220,10 +217,6 @@
 
 .navbar-mobile a:hover, .navbar-mobile .active, .navbar-mobile li:hover > a {
   color: #4154f1;
-}
-
-.navbar-mobile .getstarted {
-  margin: 15px;
 }
 
 .navbar-mobile .dropdown ul {
