@@ -7,12 +7,12 @@
 --------------------------------------------------------------*/
 :root {
   scroll-behavior: smooth;
-  --primary-color: #FFFB7D;
+  --primary-color: #fffb7d;
   --secondary-color: #00c3ff;
   --tertiary-color: #c2ff7d;
-  
+
   --text-color: #444444;
-  --text-color-bold : black;
+  --text-color-bold: black;
 }
 
 body {
@@ -30,7 +30,12 @@ a:hover {
   text-decoration: none;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: "Nunito", sans-serif;
 }
 

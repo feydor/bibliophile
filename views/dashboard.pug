@@ -3,7 +3,6 @@ extends layout
 block variables
   - var title = 'Dashboard';
 
-
 block content
 
   // page specific stylesheets
@@ -19,13 +18,13 @@ block content
   // tabs nav
   ul#libraryTabNav.nav.nav-tabs(role="tablist")
     li.nav-item
-      a.nav-link.active(href="#library-tabs-1" aria-current="page") 
+      a#libraryTabs1.nav-link.active(href="#library-tabs-1" aria-current="page") 
         i.bi.bi-bookshelf
     li.nav-item
-      a.nav-link(href="#library-tabs-2")
+      a#libraryTabs2.nav-link(href="#library-tabs-2")
         i.bi.bi-bar-chart-line
     li.nav-item
-      a.nav-link(href="#library-tabs-3")
+      a#libraryTabs3.nav-link(href="#library-tabs-3")
         i.bi.bi-bookmark-star
     
   // tabs content
@@ -33,7 +32,8 @@ block content
     div#library-tabs-1.tab-pane.fade.show.active 
       +YourLibrary
     div#library-tabs-2.tab-pane.fade ##
-    div#library-tabs-3.tab-pane.fade ### 
+    div#library-tabs-3.tab-pane.fade
+      +YourReccs
 
     <!-- JS -->
     <!-- –––––––––––––––––––––––––––––––––––––––––––––––––– -->

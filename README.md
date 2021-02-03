@@ -5,6 +5,7 @@
 <hr>
 
 // Shields.io badges
+
 <p align="center">
   <a href="" target="_blank">
     <img alt="Github Issues" src="https://img.shields.io/github/issues/feydor/bibliophile" />
@@ -20,6 +21,7 @@
 An Express.js app (MySQL, Vanilla JS, Express.js) to keep track of personal libraries, reading progress, and reccomendations.
 
 # Screenshots
+
 ![mobile-dashboard](/examples/mobile-dashboard.png "mb-dashboard")
 
 # Table of Contents

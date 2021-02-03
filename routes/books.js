@@ -1,9 +1,12 @@
+/**
+ * express.js endpoints for /books
+ */
 const express = require("express");
 const router = express.Router();
 const fetch = require("node-fetch");
 
 // import custom db module
-const db = require("./db");
+const db = require("../db");
 
 // Ideas for possible middlewares
 // 1. Check for OpenLibrary API book and pass it down as Book
@@ -11,20 +14,19 @@ const db = require("./db");
 // GET endpoints
 /////////////////////
 
-// GET /books
-// Assumes ./auth.js/addUser middleware is ran before this endpoint (done in ./app.js)
-// returns an array of all book objects for the current user
+/**
+ * GET /books endpoint
+ * @return {Array} an array of all book objects for the current user
+ * Assumes auth/addUser middleware is running
+ */
 router.get("/", async (req, res) => {
   if (!req.user) {
-    throw console.error("addUser middleware not running");
+    throw console.error("addUser middleware not running.");
   }
 
   let books = [];
   books = await getUserBooks(req.user.profile.login);
-  console.log("GET /books: ", books);
-
-  // pass hasBooks bool to html rendering engine (pugjs)
-  //res.locals.hasBooks = books.length > 0 ? true : false;
+  //console.log("GET /books: ", books);
 
   return res.send({
     books: books,
@@ -33,7 +35,11 @@ router.get("/", async (req, res) => {
   });
 });
 
-// Returns an array of book objects from library.books matching the given username
+/**
+ * Querys the db for matching book rows
+ * @param {String} username - the user's login, ie req.user.profile.login (see auth/addUser)
+ * @return {Array} an array of book objects
+ */
 const getUserBooks = async (username) => {
   let query = `SELECT * FROM books INNER JOIN library ON books.id = library.bookid
               INNER JOIN users ON users.id = library.userid WHERE users.username = ?;`;
@@ -55,26 +61,28 @@ const getUserBooks = async (username) => {
 // POST endpoints
 //////////////////////
 
-// POST /books
-// Accepts a book object of the form:
-// book {
-//     title: required
-//     author: required
-//     isbn: optional (can be 10 or 13 digit)
-//     subject: optional
-// }
-//
-// Then using the OpenLibrary API (see https://openlibrary.org/dev/docs/api/books)
-// it adds and/or corrects the following items:
-// book {
-//      ...
-//      coverurl: required
-//      publisher: required
-//      subject: required
-//      publish_date: required
-// }
-//
-// Finally an SQL entry is made
+/**
+ * POST /books endpoint
+ * @param {Object} a book object of the form:
+ *   book {
+ *     title: required
+ *     author: required
+ *     isbn: optional (can be 10 or 13 digit)
+ *     subject: optional
+ *   }
+ *
+ *   Then using the OpenLibrary API (see https://openlibrary.org/dev/docs/api/books)
+ *   it adds and/or corrects the following items:
+ *   book {
+ *     ...
+ *     coverurl: required
+ *     publisher: required
+ *     subject: required
+ *     publish_date: required
+ *   }
+ *
+ *   Finally an SQL entry is made
+ */
 router.post("/", async function (req, res) {
   if (!req.user) {
     throw console.error("addUser middleware not running");
@@ -142,32 +150,8 @@ router.post("/", async function (req, res) {
     return res.send({ status: 400, statusTxt: "Book does not exist." });
   }
 
-  // if title and/author were not provided in body, use OL api
-  if (book.title.length === 0 || book.author.length === 0) {
-    if (apibooks[`ISBN:${book.isbn}`]["title"]) {
-      book.title = apibooks[`ISBN:${book.isbn}`]["title"];
-    }
-
-    if (apibooks[`ISBN:${book.isbn}`]["authors"]) {
-      book.author = apibooks[`ISBN:${book.isbn}`]["authors"][0]["name"];
-    }
-  }
-
-  // If it exists, add coverurl from api call
-  if (apibooks[`ISBN:${book.isbn}`]["cover"]) {
-    book.coverurl = apibooks[`ISBN:${book.isbn}`]["cover"]["medium"];
-  }
-  // If it exists, add subject, publisher, etc
-  // (subjects and publishers are arrays in api data, use the first one)
-  if (apibooks[`ISBN:${book.isbn}`]["subjects"]) {
-    book.subject = apibooks[`ISBN:${book.isbn}`]["subjects"][0]["name"];
-  }
-  if (apibooks[`ISBN:${book.isbn}`]["publishers"]) {
-    book.publisher = apibooks[`ISBN:${book.isbn}`]["publishers"][0]["name"];
-  }
-  if (apibooks[`ISBN:${book.isbn}`]["publish_date"]) {
-    book.publish_date = apibooks[`ISBN:${book.isbn}`]["publish_date"];
-  }
+  // add the mising fields from the api call
+  parseApiBook(book, apibooks);
 
   // Storing the book:
   // if new book,
@@ -210,9 +194,47 @@ router.post("/", async function (req, res) {
   });
 });
 
+// Helper functions
+///////////////////////////
+
 /**
- *  Query Functions
- */ 
+ * fills the missing fields of a book with an api call
+ * @param {Object} book - a pre-initialized book with missing fields
+ * @param {Object} apibook - an OpenLibrary book object described by https://openlibrary.org/dev/docs/api/books
+ */
+const parseApiBook = (book, apibook) => {
+  // if title and/author were not provided in body, use OL apiBook
+  if (book.title.length === 0 || book.author.length === 0) {
+    if (apibook[`ISBN:${book.isbn}`]["title"]) {
+      book.title = apibook[`ISBN:${book.isbn}`]["title"];
+    }
+
+    if (apibook[`ISBN:${book.isbn}`]["authors"]) {
+      book.author = apibook[`ISBN:${book.isbn}`]["authors"][0]["name"];
+    }
+  }
+
+  // If it exists, add coverurl from OL api
+  if (apibook[`ISBN:${book.isbn}`]["cover"]) {
+    book.coverurl = apibook[`ISBN:${book.isbn}`]["cover"]["medium"];
+  }
+
+  // If it exists, add subject, publisher, etc
+  // (subjects and publishers are arrays in api data, use the first one)
+  if (apibook[`ISBN:${book.isbn}`]["subjects"]) {
+    book.subject = apibook[`ISBN:${book.isbn}`]["subjects"][0]["name"];
+  }
+  if (apibook[`ISBN:${book.isbn}`]["publishers"]) {
+    book.publisher = apibook[`ISBN:${book.isbn}`]["publishers"][0]["name"];
+  }
+  if (apibook[`ISBN:${book.isbn}`]["publish_date"]) {
+    book.publish_date = apibook[`ISBN:${book.isbn}`]["publish_date"];
+  }
+};
+
+// Query Functions
+///////////////////////////
+
 // searches library.books for matching isbn
 // returns TRUE if found
 const bookExists = async (isbn) => {
@@ -263,4 +285,4 @@ const updateLibrary = async (userid, bookid) => {
   return rows && rows.affectedRows > 0 ? true : false;
 };
 
-module.exports = router;
+module.exports = { router, getUserBooks };

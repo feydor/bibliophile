@@ -1,8 +1,8 @@
 /**
  * javascript for nav elements of views/header
  */
-(function() {
-  "use strict"
+(function () {
+  "use strict";
 
   /**
    * Toggle .header-scrolled class to #header when page is scrolled
@@ -11,9 +11,9 @@
   if (selectHeader) {
     window.addEventListener("scroll", () => {
       if (window.pageYOffset > 50) {
-        selectHeader.classList.add('header-scrolled');
+        selectHeader.classList.add("header-scrolled");
       } else {
-        selectHeader.classList.remove('header-scrolled');
+        selectHeader.classList.remove("header-scrolled");
       }
     });
   }
@@ -34,20 +34,18 @@
       if (mobileSidebar) {
         mobileSidebar.classList.toggle("show");
       }
-
     });
   }
 
-   /**
+  /**
    * Mobile nav dropdowns activate
    */
-  
   if (navbar) {
     navbar.addEventListener("click", (event) => {
       if (navbar.classList.contains("navbar-mobile")) {
-        event.preventDefault(); 
+        event.preventDefault();
         navbar.firstChild.classList.toggle("dropdown-active");
-      }    
+      }
     });
   }
 })();

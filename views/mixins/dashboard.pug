@@ -37,17 +37,3 @@ mixin YourReccs
 
 // a graph showing number of books read vs total books
 
-// a popout sidebar for the hamburgermenu
-mixin MobileSidebar
-  ul.mobile-sidebar.sidebar
-    li
-      a.nav-link.active(href="#") Home
-    li
-      a.nav-link.active(href="/dashboard") Library
-    li
-      form#logoutForm(method="post" action="logout")
-        a(href="javascript:{}" onclick="document.getElementById('logoutForm').submit();"
-        )
-          i.bi.bi-sign-out
-          span Logout
-    

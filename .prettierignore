@@ -3,3 +3,4 @@ bin
 .env
 *.pug
 *.html
+public/vendor

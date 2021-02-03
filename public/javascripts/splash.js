@@ -1,7 +1,7 @@
 /**
  *  @description event listeners for splash.pug
  */
-(function() {
+(function () {
   /**
    * Animation on scroll
    */
@@ -10,11 +10,10 @@
       duration: 1000,
       easing: "ease-in-out",
       once: true,
-      mirror: false
+      mirror: false,
     });
   }
-  window.addEventListener('load', () => {
+  window.addEventListener("load", () => {
     aos_init();
   });
-
 })();

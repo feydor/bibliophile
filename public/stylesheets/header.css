@@ -76,7 +76,9 @@
   margin-left: 5px;
 }
 
-.navbar a:hover, .navbar .active, .navbar li:hover > a {
+.navbar a:hover,
+.navbar .active,
+.navbar li:hover > a {
   color: #4154f1;
 }
 
@@ -111,7 +113,9 @@
   font-size: 12px;
 }
 
-.navbar .dropdown ul a:hover, .navbar .dropdown ul .active:hover, .navbar .dropdown ul li:hover > a {
+.navbar .dropdown ul a:hover,
+.navbar .dropdown ul .active:hover,
+.navbar .dropdown ul li:hover > a {
   color: #4154f1;
 }
 
@@ -215,7 +219,9 @@
   color: #012970;
 }
 
-.navbar-mobile a:hover, .navbar-mobile .active, .navbar-mobile li:hover > a {
+.navbar-mobile a:hover,
+.navbar-mobile .active,
+.navbar-mobile li:hover > a {
   color: #4154f1;
 }
 
@@ -243,7 +249,9 @@
   font-size: 12px;
 }
 
-.navbar-mobile .dropdown ul a:hover, .navbar-mobile .dropdown ul .active:hover, .navbar-mobile .dropdown ul li:hover > a {
+.navbar-mobile .dropdown ul a:hover,
+.navbar-mobile .dropdown ul .active:hover,
+.navbar-mobile .dropdown ul li:hover > a {
   color: #4154f1;
 }
 
