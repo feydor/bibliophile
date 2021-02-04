@@ -25,7 +25,7 @@
   let dropdown = document.getElementById("dropdownMenu");
   if (mobileNavbarToggle) {
     mobileNavbarToggle.addEventListener("click", () => {
-      navbar.classList.toggle("toggled");
+      navbar.classList.toggle("navbar-mobile");
       mobileNavbarToggle.classList.toggle("bi-list");
       mobileNavbarToggle.classList.toggle("bi-x");
 

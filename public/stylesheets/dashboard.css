@@ -54,6 +54,14 @@
   justify-content: center;
 }
 
+/* shrinks covers in reccs tab */
+.reccs-cover {
+  margin: 3px 10px 3px 3px;
+  object-fit: contain;
+  max-width: 200px;
+  max-height: 250px;
+}
+
 .dark-mode {
   background-color: #121212;
   color: white;

@@ -75,6 +75,7 @@ const getUserBooks = async (username) => {
  *   it adds and/or corrects the following items:
  *   book {
  *     ...
+ *     olid: required
  *     coverurl: required
  *     publisher: required
  *     subject: required
@@ -88,13 +89,14 @@ router.post("/", async function (req, res) {
     throw console.error("addUser middleware not running");
   }
 
-  console.log(req.body);
+  console.log("req.body: ", req.body);
 
   // Parse req.body
   let book = {
     title: req.body.title,
     author: req.body.author,
     isbn: req.body.isbn,
+    olid: null,
     subject: null,
     publisher: null,
     publish_date: null,
@@ -104,40 +106,16 @@ router.post("/", async function (req, res) {
   // OpenLibrary API using isbn OR title/author
   // EX: https://openlibrary.org/api/books?bibkeys=ISBN:9780140047486&jsmd=data&format=json
   // isbn should be a string
-  let isValidIsbn = (isbn) => {
-    if (parseInt(isbn)) {
-      if (isbn.length === 10 || isbn.length === 13) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
   if (!isValidIsbn(book.isbn)) {
     // TODO: not valid isbn, use author/title instead?
-    console.error(`ISBN not valid, ISBN:${book.isbn}`);
-    console.log(isValidIsbn(book.isbn));
+    console.error(`ISBN not valid, ISBN: ${book.isbn}`);
     return res.send({ status: 400, statusTxt: "Not a valid isbn." });
   }
 
-  const fetchOLApi = async () => {
-    const response = await fetch(
-      `https://openlibrary.org/api/books?bibkeys=ISBN:${book.isbn}&jscmd=data&format=json`
-    );
-
-    if (!response.ok) {
-      const message = `An error has occured: ${response.status}`;
-      throw new Error(message);
-    }
-
-    const apibooks = await response.json();
-    return apibooks;
-  };
-
   var apibooks;
+  const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${book.isbn}&jscmd=data&format=json`;
   try {
-    apibooks = await fetchOLApi();
+    apibooks = await fetchApi(url);
   } catch (error) {
     console.error(error);
   }
@@ -151,7 +129,7 @@ router.post("/", async function (req, res) {
   }
 
   // add the mising fields from the api call
-  parseApiBook(book, apibooks);
+  parseApiBookIsbn(book, apibooks);
 
   // Storing the book:
   // if new book,
@@ -162,6 +140,8 @@ router.post("/", async function (req, res) {
   //   get the book's id,
   //   then store userid and bookid relation in library.library
   console.log("req.userid=", req.userid);
+  //storeBook(book, req.userid);
+
   var bookid;
   let bookDoesExist = await bookExists(book.isbn);
   if (!bookDoesExist) {
@@ -194,17 +174,89 @@ router.post("/", async function (req, res) {
   });
 });
 
+/**
+ * POST /books/OLID:OLID
+ * @example /books/OL151515W
+ */
+router.post("/:olid", async (req, res) => {
+  const olid = req.params.olid;
+
+  // get OL api book
+  var apiResponse;
+  const url = `https://openlibrary.org/api/books?bibkeys=OLID:${olid}&jscmd=data&format=json`;
+  try {
+    apiResponse = await fetchApi(url);
+  } catch (error) {
+    console.error(error);
+  }
+
+  // console.log(apiResponse);
+
+  // Check for validity
+  if (Object.entries(apiResponse).length === 0) {
+    console.error(`Book NOT found, OLID:${olid}`);
+    return res.send({ status: 400, statusTxt: "Book does not exist." });
+  }
+
+  // parse it into a book
+  let book = {};
+  parseApiBookOlid(book, apiResponse, olid);
+  console.log(book);
+
+  // store in db
+  await storeBook(book, req.userid);
+
+  return res.send({ status: 200, statusTxt: "OK", olid: olid });
+});
+
 // Helper functions
 ///////////////////////////
 
 /**
- * fills the missing fields of a book with an api call
+ * querys an api
+ * @param {String} url - the api's url
+ * @return {Array}
+ */
+const fetchApi = async (url, options = {}) => {
+  const response = await fetch(url, options);
+
+  if (!response.ok) {
+    const message = `An error has occured: ${response.status}`;
+    throw new Error(message);
+  }
+
+  const apiJson = await response.json();
+  return apiJson;
+};
+
+/**
+ * Returns true if isbn is a valid isbn (10 or 13 digits)
+ * @param {String} isbn - a possible isbn
+ * @return {boolean}
+ */
+const isValidIsbn = (isbn) => {
+  if (parseInt(isbn)) {
+    if (isbn.length === 10 || isbn.length === 13) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+/**
+ * fills the missing fields of a book with an api call, uses isbn
  * @param {Object} book - a pre-initialized book with missing fields
  * @param {Object} apibook - an OpenLibrary book object described by https://openlibrary.org/dev/docs/api/books
  */
-const parseApiBook = (book, apibook) => {
+const parseApiBookIsbn = (book, apibook) => {
   // if title and/author were not provided in body, use OL apiBook
-  if (book.title.length === 0 || book.author.length === 0) {
+  if (
+    book.title === undefined ||
+    book.title.length === 0 ||
+    book.author === undefined ||
+    book.author.length === 0
+  ) {
     if (apibook[`ISBN:${book.isbn}`]["title"]) {
       book.title = apibook[`ISBN:${book.isbn}`]["title"];
     }
@@ -230,26 +282,134 @@ const parseApiBook = (book, apibook) => {
   if (apibook[`ISBN:${book.isbn}`]["publish_date"]) {
     book.publish_date = apibook[`ISBN:${book.isbn}`]["publish_date"];
   }
+
+  // If it exists, add olid from OL api
+  if (apibook[`ISBN:${book.isbn}`]["identifiers"]["openlibrary"]) {
+    book.olid = apibook[`ISBN:${book.isbn}`]["identifiers"]["openlibrary"];
+  }
+};
+
+/**
+ * fills the missing fields of a book with an api call, uses OLID
+ * @param {Object} book - a pre-initialized book with missing fields
+ * @param {Object} apibook - an OpenLibrary book object described by https://openlibrary.org/dev/docs/api/books
+ */
+const parseApiBookOlid = (book, apibook, olid) => {
+  book.olid = olid;
+
+  // if title and/author were not provided in body, use OL apiBook
+  if (
+    book.title === undefined ||
+    book.title.length === 0 ||
+    book.author === undefined ||
+    book.author.length === 0
+  ) {
+    if (apibook[`OLID:${olid}`]["title"]) {
+      book.title = apibook[`OLID:${olid}`]["title"];
+    }
+
+    if (apibook[`OLID:${olid}`]["authors"]) {
+      book.author = apibook[`OLID:${olid}`]["authors"][0]["name"];
+    }
+  }
+
+  // If it exists, add coverurl from OL api
+  if (apibook[`OLID:${olid}`]["cover"]) {
+    book.coverurl = apibook[`OLID:${olid}`]["cover"]["medium"];
+  }
+
+  // If it exists, add subject, publisher, etc
+  // (subjects and publishers are arrays in api data, use the first one)
+  if (apibook[`OLID:${olid}`]["subjects"]) {
+    book.subject = apibook[`OLID:${olid}`]["subjects"][0]["name"];
+  }
+  if (apibook[`OLID:${olid}`]["publishers"]) {
+    book.publisher = apibook[`OLID:${olid}`]["publishers"][0]["name"];
+  }
+  if (apibook[`OLID:${olid}`]["publish_date"]) {
+    book.publish_date = apibook[`OLID:${olid}`]["publish_date"];
+  }
+
+  // check for isbn_10 and isbn_13, isbn_13 takes precedence
+  if (apibook[`OLID:${olid}`]["identifiers"]["isbn_10"]) {
+    book.isbn = apibook[`OLID:${olid}`]["identifiers"]["isbn_10"];
+  }
+  if (apibook[`OLID:${olid}`]["identifiers"]["isbn_13"]) {
+    book.isbn = apibook[`OLID:${olid}`]["identifiers"]["isbn_13"];
+  }
+
+  // remove multiple isbns
+  if (Array.isArray(book.isbn)) {
+    book.isbn = book.isbn[0];
+  }
+};
+
+/**
+ * stores a book in db, modifying library.books and library.library
+ * @param {Object} book
+ * @param {String} userid
+ */
+const storeBook = async (book, userid) => {
+  // Psuedo-code:
+  //   Storing the book:
+  //   if new book,
+  //     store it in library.books,
+  //     get the new book's id,
+  //     add the bookid and userid to a row in library.library
+  //   else if pre-exisitng book,
+  //     get the book's id,
+  //     then store bookid and userid relation in library.library
+  var bookid;
+  let bookDoesExist = await bookExists(book.olid);
+  if (!bookDoesExist) {
+    let insertedBook = await insertBook(book);
+    if (!insertedBook) {
+      console.error("Failed to insert book.");
+    }
+
+    bookid = await getBookId(book.olid);
+    console.log("bookid: ", bookid);
+
+    let updatedLibrary = await updateLibrary(userid, bookid);
+    if (!updatedLibrary) {
+      console.error("Failed to update library.");
+    }
+  } else {
+    bookid = await getBookId(book.title);
+    console.log("bookid: ", bookid);
+
+    let updatedLibrary = await updateLibrary(userid, bookid);
+    if (!updatedLibrary) {
+      console.error("Failed to update library.");
+    }
+  }
 };
 
 // Query Functions
 ///////////////////////////
 
-// searches library.books for matching isbn
-// returns TRUE if found
-const bookExists = async (isbn) => {
+/**
+ * searches library.books for matching OLID
+ * @param {String} olid
+ * @return {boolean} returns true if found
+ */
+const bookExists = async (olid) => {
   const [
     rows,
-  ] = await db.execute(`SELECT title FROM books WHERE books.isbn = ?`, [isbn]);
+  ] = await db.execute(`SELECT title FROM books WHERE books.olid = ?`, [olid]);
 
   return rows && rows.length > 0 ? true : false;
 };
 
-// returns the bookid for the book in library.book that matches the isbn param
-// if the book doesn't exist, it returns 0
-const getBookId = async (isbn) => {
-  const [rows] = await db.execute(`SELECT id FROM books WHERE books.isbn = ?`, [
-    isbn,
+/**
+ * searches library.books for matching isbn and returns the matching book's id
+ * @param {String} olid
+ * @return {String} bookid - the id for the matching library.book
+ * @return {bool} if the book doesn't exist it returns 0
+ */
+const getBookId = async (olid) => {
+  const [rows] = await db.execute(`SELECT id FROM books WHERE books.olid = ?`, [
+    olid,
   ]);
 
   return rows && rows.length > 0 ? rows[0].id : 0;
@@ -258,11 +418,12 @@ const getBookId = async (isbn) => {
 // inserts the book into library.books
 const insertBook = async (book) => {
   const [rows] = await db.execute(
-    `INSERT INTO books(title, author, isbn, publisher, publish_date,
-     subject, coverurl) VALUES(?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO books(title, author, olid, isbn, publisher, publish_date,
+     subject, coverurl) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       book.title,
       book.author,
+      book.olid,
       book.isbn,
       book.publisher,
       book.publish_date,

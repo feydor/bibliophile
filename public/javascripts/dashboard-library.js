@@ -8,6 +8,7 @@
   const POSTBOOK = "http://localhost:3000/books";
   const DOMAIN = "http://localhost:3000/";
   const BOOKLIST_CONTAINER = document.getElementById("booklist-container");
+  const RECCS_CONTAINER = document.getElementById("reccs-container");
   const FORMNODE = document.getElementById("add-book-form");
   const ADDBUTTON = document.getElementById("add-book-button");
   const MAX_URL_LENGTH = 45;
@@ -41,6 +42,7 @@
     });
     return response.json();
   }
+
   /* Main entrypoint */
   window.addEventListener("load", () => {
     // first check for browser/os variables
@@ -108,14 +110,16 @@
         break;
 
       case "libraryTabs3":
-        console.log(user.profile);
         let fetchReccs = async () => {
           const response = await fetch(`http://localhost:3000/reccs`);
-
-          console.log(response);
+          return response.json();
         };
 
-        // renderReccs();
+        fetchReccs().then((reccs) => {
+          console.log(reccs);
+          let reccsTable = createReccsTable(reccs);
+          RECCS_CONTAINER.appendChild(reccsTable);
+        });
         break;
 
       default:
@@ -169,10 +173,130 @@
   }
 
   /**
+   * Renders the given reccs list
+   * @param {Array} reccs - an array of Recc objects
+   * @returns {HTMLElement} root - an html table
+   * @example
+   *   ul.list-group
+   *     li.list-group-item
+   *       div.d-flex
+   *         img.reccs-cover
+   *         detailsDiv.flex-column
+   *           title
+   *           author
+   *           subjects
+   *         buttonDiv.flex-column
+   *           infoButton
+   *           AddButton
+   */
+  function createReccsTable(reccs) {
+    let root = document.createElement("ul");
+    root.classList.add("list-group");
+
+    reccs["reccs"].forEach((recc) => {
+      let li = document.createElement("li");
+      li.classList.add("list-group-item");
+
+      let div = document.createElement("div");
+      div.classList.add("d-flex", "justify-content-around");
+
+      let cover = document.createElement("img");
+      cover.classList.add("reccs-cover");
+      cover.setAttribute("src", recc.coverurl);
+      cover.setAttribute("width", "100%");
+      div.appendChild(cover);
+
+      let detailsDiv = document.createElement("div");
+      detailsDiv.classList.add("d-flex", "flex-column");
+
+      let title = document.createElement("h3");
+      title.classList.add("mb-1");
+      let titleLink = document.createElement("a");
+      titleLink.setAttribute("href", `http://openlibrary.org${recc.key}`);
+      titleLink.textContent = recc.title;
+      title.appendChild(titleLink);
+      detailsDiv.appendChild(title);
+
+      let author = document.createElement("h4");
+      author.classList.add("mb-1");
+      let authorLink = document.createElement("a");
+      authorLink.setAttribute(
+        "href",
+        `http://openlibrary.org${recc.author.key}`
+      );
+      authorLink.textContent = recc.author.name;
+      author.appendChild(authorLink);
+      detailsDiv.appendChild(author);
+
+      let subjectsList = document.createElement("ul");
+      const maxSubjects = 3;
+      for (let i = 0; i < maxSubjects; ++i) {
+        let subject = recc.subject[i];
+        if (subject === null || subject === undefined) break;
+        let li = document.createElement("li");
+        let link = document.createElement("a");
+        link.setAttribute(
+          "href",
+          `https://openlibrary.org/subjects/${subject}`
+        );
+        link.textContent = subject;
+        li.appendChild(link);
+        subjectsList.appendChild(li);
+      }
+      detailsDiv.appendChild(subjectsList);
+      div.appendChild(detailsDiv);
+
+      let btnDiv = document.createElement("div");
+      btnDiv.classList.add("d-flex", "flex-column");
+
+      let infoBtn = document.createElement("a");
+      infoBtn.classList.add("btn", "btn-primary", "mb-1");
+      infoBtn.setAttribute("role", "button");
+      infoBtn.setAttribute("href", `https://openlibrary.org${recc.works_key}`);
+      infoBtn.textContent = "Info/Buy";
+      btnDiv.appendChild(infoBtn);
+
+      let form = document.createElement("form");
+
+      let addBtn = document.createElement("a");
+      addBtn.classList.add("btn", "btn-light");
+      addBtn.setAttribute("role", "button");
+      addBtn.setAttribute("href", "#");
+      addBtn.textContent = "Add To List";
+      addBtn.addEventListener("click", async (event) => {
+        event.preventDefault();
+
+        console.log("form submit");
+
+        let postResponse = await fetch(`${DOMAIN}books/${recc.key}`, {
+          method: "POST",
+        });
+
+        let responseJson = await postResponse.json();
+
+        console.log(responseJson);
+        if (responseJson.status !== 200) {
+          console.error(responseJson.status);
+        }
+
+        window.location.href = DOMAIN + "dashboard";
+      });
+      form.appendChild(addBtn);
+      btnDiv.appendChild(form);
+      div.appendChild(btnDiv);
+
+      li.appendChild(div);
+      root.appendChild(li);
+    });
+
+    return root;
+  }
+
+  /**
    * Returns an html table containing the booklist
    *
-   * @param {Array} booklist The books to display on the table.
-   * @return {HTMLElement} root The finished html table.
+   * @param {Array} booklist - The books to display on the table.
+   * @return {HTMLElement} root - The finished html table.
    */
   // format:
   // <table>
@@ -291,7 +415,6 @@
 
   /* Formatting function for row details section */
   function format(d) {
-    console.log(d);
     return `<div class="container-fluid extra-info-row"> 
               <img src=${d.coverurl} />
               <table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px">
