@@ -4,14 +4,12 @@
 
   // constants
   const GETBOOKS = "http://localhost:3000/books";
-  const GETSAVED = "http://localhost:3000/saved";
   const POSTBOOK = "http://localhost:3000/books";
   const DOMAIN = "http://localhost:3000/";
   const BOOKLIST_CONTAINER = document.getElementById("booklist-container");
   const RECCS_CONTAINER = document.getElementById("reccs-container");
   const FORMNODE = document.getElementById("add-book-form");
   const ADDBUTTON = document.getElementById("add-book-button");
-  const MAX_URL_LENGTH = 45;
   const BREAKPOINT = 768;
 
   // enumeration of all possible view states (for booklist)
@@ -43,7 +41,10 @@
     return response.json();
   }
 
-  /* Main entrypoint */
+  /* Main entrypoint
+   * Assigns a click listener for each #libraryTabNav tab
+   * to run fetchSelectedResource(id) as the handler
+   */
   window.addEventListener("load", () => {
     // first check for browser/os variables
     // Check for dark mode preference at the OS level
@@ -58,24 +59,31 @@
     fetchSelectedResource(currentTabId);
 
     // assign a click listener to each tab, to run fetchSelectedResource
-    let tabList = [].slice.call(
-      document.querySelectorAll("#libraryTabNav .nav-link")
-    );
-    tabList.forEach((tablink) => {
-      let tabid = tablink.id;
-      tablink.addEventListener("click", () => {
-        fetchSelectedResource(tabid);
+    [].slice
+      .call(document.querySelectorAll("#libraryTabNav .nav-link"))
+      .forEach((tablink) => {
+        let tabid = tablink.id;
+        tablink.addEventListener("click", () => {
+          fetchSelectedResource(tabid);
+        });
       });
-    });
   });
 
   /**
-   * @description depending on the tabid, 1 of 3 things is done:
-   *              1. Fetch the booklist and render it,
-   *              2. Fetch user statistics and render them in a chart,
-   *              3. Fetch the user's reccomended book list
+   * a click event handler for the #libraryTabNav tabs
+   * Depending on the tabid, 1 of 3 things is done:
+   *   1. Fetch the booklist and render it,
+   *   2. Fetch user statistics and render them in a chart,
+   *   3. Fetch the user's reccomended book list
+   *
+   *   @param {String} tabid - the HTML id of the clicked tab
    */
   function fetchSelectedResource(tabid) {
+    console.assert(
+      typeof tabid === "string",
+      "argument 'tabid' must be a string"
+    );
+
     switch (tabid) {
       case "libraryTabs1":
         // if cached, skip fetch
@@ -190,6 +198,8 @@
    *           AddButton
    */
   function createReccsTable(reccs) {
+    console.assert(Array.isArray(reccs), "argument 'reccs' must be an array");
+
     let root = document.createElement("ul");
     root.classList.add("list-group");
 
@@ -297,19 +307,24 @@
    *
    * @param {Array} booklist - The books to display on the table.
    * @return {HTMLElement} root - The finished html table.
+   * format:
+   * <table>
+   *   <thead>
+   *     <tr>1</tr>
+   *     ...
+   *   </thead>
+   *   <tbody>
+   *     <tr id="book1">a</tr>
+   *     ...
+   *   </tbody>
+   * </table>
    */
-  // format:
-  // <table>
-  //   <thead>
-  //     <tr>1</tr>
-  //     ...
-  //   </thead>
-  //   <tbody>
-  //     <tr id="book1">a</tr>
-  //     ...
-  //   </tbody>
-  // </table>
   function createListNode(bookList) {
+    console.assert(
+      Array.isArray(bookList),
+      "argument 'bookList' should be an array"
+    );
+
     let root = document.createElement("table");
     root.classList.add("u-full-width", "table-hover");
     root.id = "dataTable";
@@ -413,8 +428,16 @@
     return root;
   }
 
-  /* Formatting function for row details section */
+  /* Formatting function for row details section
+   * @param {Object} d - an object that must contain a 'coverurl' field and may have
+   * the following optional fields (title, author, subject, publisher, publishdate, isbn)
+   */
   function format(d) {
+    console.assert(
+      typeof d.coverurl === "string",
+      "argument 'd.coverurl' should be a string"
+    );
+
     return `<div class="container-fluid extra-info-row"> 
               <img src=${d.coverurl} />
               <table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px">
@@ -451,13 +474,18 @@
    *
    * @param {Array} booklist The books to display bookcovers of.
    * @return {HTMLElement} root The final div, with id gallery.
+   * format:
+   * <div id="booklist-gallery">
+   *   <img src="http://covers.openlibrary.org/b/isbn/9780385533225-S.jpg">
+   *   ...
+   * </div>
    */
-  // format
-  // <div id="booklist-gallery">
-  //    <img src="http://covers.openlibrary.org/b/isbn/9780385533225-S.jpg">
-  //    ...
-  // </div>
   function createGalleryNode(booklist) {
+    console.assert(
+      Array.isArray(bookList),
+      "argument 'bookList' should be an array"
+    );
+
     let root = document.createElement("div");
     root.id = "gallery";
     booklist.forEach((book) => {
@@ -479,7 +507,7 @@
    *
    * @param {string} tableid The id of the table to be sorted.
    * @param {number} column The column heading to sort by, starting from 0 or the leftmost column.
-   * @return {number} 1 for success, 0 for failure.
+   * @return {number} 1 for success, 0 for failure (table may be null or undefined).
    */
   function sortTable(tableid = "booklist-id", column = 0) {
     let table = document.getElementById(tableid);
@@ -511,11 +539,17 @@
     return 1;
   }
 
+  /**
+   * click event listener to render Library list-view
+   */
   document.getElementById("list-view").addEventListener("click", () => {
     CURRENT_VIEW = VIEW.list;
     renderBookList();
   });
 
+  /**
+   * click event listener to render Library gallery-view
+   */
   document.getElementById("gallery-view").addEventListener("click", () => {
     CURRENT_VIEW = VIEW.gallery;
     renderBookList();
@@ -523,7 +557,6 @@
 
   /**
    * Populates and renders the add-book form
-   *
    */
   function renderAddBookForm() {
     // first hide the add book button and redisplay the formNode
@@ -672,8 +705,6 @@
 
   /**
    * Handles pressing the submit button in the add books form
-   *
-   * @return {number} 1 for success, 0 for failure.
    */
   FORMNODE.addEventListener("submit", (event) => {
     // Prevent form from submitting to the server
@@ -720,10 +751,6 @@
       });
     });
   });
-
-  /**
-   * @description fetches book requests
-   */
 
   console.log("app.js loaded!");
 })();

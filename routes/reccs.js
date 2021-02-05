@@ -3,6 +3,7 @@
  */
 const express = require("express");
 const router = express.Router();
+const assert = require("assert").strict;
 
 // import custom db module
 const db = require("../db");
@@ -33,20 +34,21 @@ router.get("/", async (req, res) => {
 
   // example API call: https://openlibrary.org/subjects/love.json
   var apiResponse;
-  const limit = 10; // api limit
+  const limit = 10;
   // TODO: for simplicity, the first !null subject is used
   let subjectChosen = subjects.find((subject) => subject !== null);
   // lowercase the string
   subjectChosen = subjectChosen[0].toLowerCase() + subjectChosen.slice(1);
   let url = `https://openlibrary.org/subjects/${subjectChosen}.json?limit=${limit}`;
-  try {
-    apiResponse = await fetchApi(url, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    throw console.error(error);
-  }
+
+  await fetchApi(
+    url,
+    { method: "get", headers: { "Content-Type": "application/json" } },
+    (error, result) => {
+      if (error) throw console.error(error);
+      apiResponse = result;
+    }
+  );
 
   // For each new book (up to MAXNUM)
   // parse received objects into a new book
@@ -74,20 +76,25 @@ router.get("/", async (req, res) => {
 
 /**
  * fetches json data from the url asynchronously
- * @param {String} url - the api's url
- * @param {Object} options - fetch api options
+ * @param {String} url - a url string
+ * @param {Object} options - fetch api options, optional
+ * @param {Function} callback - takes two arguments (error, result)
  * @return {Object} apiResponse - an object with the response
+ * @throws Will throw an error if fetch fails, or response.json() fails
  */
-const fetchApi = async (url, options) => {
+const fetchApi = async (url, options = {}, callback) => {
+  assert.equal(typeof url, "string", "argument 'url' must be a string");
+  assert.equal(typeof callback, "function");
+
   const response = await fetch(url, options);
 
   if (!response.ok) {
     const message = `An error has occured: ${response.status}`;
-    throw new Error(message);
+    return callback(new Error(message), null);
   }
 
   const apiResponse = await response.json();
-  return apiResponse;
+  return callback(null, apiResponse);
 };
 
 /**
@@ -123,6 +130,8 @@ Object.filter = (obj, predicate) =>
  *
  */
 const parseApiWork = (work) => {
+  if (work === undefined) throw new Error("Undefined input.");
+
   let book = {};
   let keys = [
     "key",
