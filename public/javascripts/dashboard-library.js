@@ -1,5 +1,5 @@
 /* dashboard-library.js ~ CRUD requests, form creation, table button functionality */
-(function () {
+(function() {
   "use strict";
 
   // constants
@@ -50,11 +50,11 @@
     // Check for dark mode preference at the OS level
     const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
     if (prefersDarkScheme) {
-      //document.body.classList.toggle("dark-mode");
+      // document.body.classList.toggle("dark-mode");
     }
 
     // get the id of the currently active tab
-    let currentTabId = document.querySelector("#libraryTabNav .active").id;
+    const currentTabId = document.querySelector("#libraryTabNav .active").id;
     console.log(currentTabId);
     fetchSelectedResource(currentTabId);
 
@@ -62,7 +62,7 @@
     [].slice
       .call(document.querySelectorAll("#libraryTabNav .nav-link"))
       .forEach((tablink) => {
-        let tabid = tablink.id;
+        const tabid = tablink.id;
         tablink.addEventListener("click", () => {
           fetchSelectedResource(tabid);
         });
@@ -118,14 +118,14 @@
         break;
 
       case "libraryTabs3":
-        let fetchReccs = async () => {
+        const fetchReccs = async () => {
           const response = await fetch(`http://localhost:3000/reccs`);
           return response.json();
         };
 
         fetchReccs().then((reccs) => {
           console.log(reccs);
-          let reccsTable = createReccsTable(reccs);
+          const reccsTable = createReccsTable(reccs);
           RECCS_CONTAINER.appendChild(reccsTable);
         });
         break;
@@ -148,7 +148,7 @@
     // based on current list view (detailed view vs gallery view)
     // create a list of books using the received data
     if (CURRENT_VIEW === VIEW.list) {
-      let listNode = createListNode(BookList);
+      const listNode = createListNode(BookList);
       BOOKLIST_CONTAINER.appendChild(listNode);
 
       // Render DataTable
@@ -172,7 +172,7 @@
         .getElementById("gallery-view")
         .classList.remove("button-primary");
     } else {
-      let galleryNode = createGalleryNode(BookList);
+      const galleryNode = createGalleryNode(BookList);
       BOOKLIST_CONTAINER.appendChild(galleryNode);
 
       document.getElementById("gallery-view").classList.add("button-primary");
@@ -182,8 +182,8 @@
 
   /**
    * Renders the given reccs list
-   * @param {Array} reccs - an array of Recc objects
-   * @returns {HTMLElement} root - an html table
+   * @param {Object} reccs - an object containing one 'reccs' filed which is an array
+   * @return {HTMLElement} root - an html table
    * @example
    *   ul.list-group
    *     li.list-group-item
@@ -198,7 +198,8 @@
    *           AddButton
    */
   function createReccsTable(reccs) {
-    console.assert(Array.isArray(reccs), "argument 'reccs' must be an array");
+    console.assert(Array.isArray(reccs["reccs"]) === true,
+      "argument 'reccs' must be an array");
 
     let root = document.createElement("ul");
     root.classList.add("list-group");
@@ -373,7 +374,7 @@
     bookList.forEach((book) => {
       let tr = document.createElement("tr");
       tr.id = "book" + book.id;
-      Object.entries(book).forEach(([key, value], idx) => {
+      Object.entries(book).forEach(([key, value]) => {
         if (keysToRender.includes(key)) {
           let td = document.createElement("td");
           td.textContent = value;
@@ -386,7 +387,7 @@
       let editButton = document.createElement("button");
       editButton.id = "edit" + tr.id;
       editButton.classList.add("btn", "btn-sm", "btn-success");
-      editButton.addEventListener("click", (event) => {
+      editButton.addEventListener("click", () => {
         let editButtonRow = tr.lastChild;
         let newRow = Table.row(tr);
 
@@ -482,7 +483,7 @@
    */
   function createGalleryNode(booklist) {
     console.assert(
-      Array.isArray(bookList),
+      Array.isArray(booklist),
       "argument 'bookList' should be an array"
     );
 
@@ -510,7 +511,7 @@
    * @return {number} 1 for success, 0 for failure (table may be null or undefined).
    */
   function sortTable(tableid = "booklist-id", column = 0) {
-    let table = document.getElementById(tableid);
+    const table = document.getElementById(tableid);
 
     if (table === undefined || table === null) {
       return 0;
@@ -715,14 +716,14 @@
     ADDBUTTON.style.display = "";
 
     // extract data from inputs
-    let data = {
+    const data = {
       title: document.getElementById("titleInput").value,
       author: document.getElementById("authorInput").value,
       isbn: document.getElementById("isbnInput").value,
     };
 
     // POST json data using a new XMLHttpRequest object
-    let xhr = new XMLHttpRequest();
+    const xhr = new XMLHttpRequest();
     xhr.open("POST", POSTBOOK);
     xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
     xhr.send(JSON.stringify(data));
@@ -743,7 +744,7 @@
       document.querySelectorAll("#libraryTabNav a")
     );
     triggerTabList.forEach(function (triggerEl) {
-      var tabTrigger = new bootstrap.Tab(triggerEl);
+      const tabTrigger = new bootstrap.Tab(triggerEl);
 
       triggerEl.addEventListener("click", function (event) {
         event.preventDefault();

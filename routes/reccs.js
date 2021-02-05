@@ -4,9 +4,9 @@
 const express = require("express");
 const router = express.Router();
 const assert = require("assert").strict;
+const https = require('https');
 
 // import custom db module
-const db = require("../db");
 const booksRouter = require("./books");
 
 // GET endpoints
@@ -33,7 +33,7 @@ router.get("/", async (req, res) => {
   });
 
   // example API call: https://openlibrary.org/subjects/love.json
-  var apiResponse;
+  let apiResponse = {};
   const limit = 10;
   // TODO: for simplicity, the first !null subject is used
   let subjectChosen = subjects.find((subject) => subject !== null);
@@ -41,19 +41,42 @@ router.get("/", async (req, res) => {
   subjectChosen = subjectChosen[0].toLowerCase() + subjectChosen.slice(1);
   let url = `https://openlibrary.org/subjects/${subjectChosen}.json?limit=${limit}`;
 
-  await fetchApi(
-    url,
-    { method: "get", headers: { "Content-Type": "application/json" } },
-    (error, result) => {
-      if (error) throw console.error(error);
-      apiResponse = result;
-    }
-  );
+  try {
+    fetchApi(
+      url,
+      (error, result) => {
+        if (error) throw console.error(error);
+        apiResponse = result;
+        
+        if (apiResponse["work_count"] <= 0) {
+          return res.send({ status: 400, statusTxt: "Not a valid subject." });
+        }
+
+        // For each new book (up to MAXNUM)
+        // parse received objects into a new book
+        // add to an array
+        // and return
+        const MAXNUM = 5;
+        let reccsList = [];
+        for (let i = 0; i < MAXNUM; ++i) {
+          let work = apiResponse["works"][i];
+          let recc = parseApiWork(work);
+          reccsList.push(recc);
+        }
+
+        return res.send({ reccs: reccsList, status: 200, statusTxt: "OK" });
+      }
+    );
+  } catch (error) {
+    console.error(error);
+  }
+
 
   // For each new book (up to MAXNUM)
   // parse received objects into a new book
   // add to an array
   // and return
+  /*
   if (apiResponse["work_count"] <= 0) {
     return res.send({ status: 400, statusTxt: "Not a valid subject." });
   }
@@ -69,6 +92,7 @@ router.get("/", async (req, res) => {
   // console.log(reccsList);
 
   return res.send({ reccs: reccsList, status: 200, statusTxt: "OK" });
+  */
 });
 
 // Helper functions
@@ -77,24 +101,47 @@ router.get("/", async (req, res) => {
 /**
  * fetches json data from the url asynchronously
  * @param {String} url - a url string
- * @param {Object} options - fetch api options, optional
  * @param {Function} callback - takes two arguments (error, result)
  * @return {Object} apiResponse - an object with the response
- * @throws Will throw an error if fetch fails, or response.json() fails
+ * @throws Will throw an error if fetch fails, or JSON.parse() fails
  */
-const fetchApi = async (url, options = {}, callback) => {
+const fetchApi = (url, callback) => {
   assert.equal(typeof url, "string", "argument 'url' must be a string");
   assert.equal(typeof callback, "function");
 
-  const response = await fetch(url, options);
+  https.get(url, (res) => {
+    const { statusCode } = res;
+    const contentType = res.headers['content-type'];
 
-  if (!response.ok) {
-    const message = `An error has occured: ${response.status}`;
-    return callback(new Error(message), null);
-  }
+    let error;
+    // Any 2xx status code signals a successful response but
+    // here we're only checking for 200.
+    if (statusCode !== 200) {
+      return callback(new Error('Request Failed.\n' + `Status Code: ${statusCode}`), null);
+    } else if (!/^application\/json/.test(contentType)) {
+      return callback(new Error('Invalid content-type.\n' +
+        `Expected application/json but received ${contentType}`), null);
+    }
+    if (error) {
+      // Consume response data to free up memory
+      res.resume();
+      return callback(new Error(error.message), null);
+    }
 
-  const apiResponse = await response.json();
-  return callback(null, apiResponse);
+    res.setEncoding('utf8');
+    let rawData = '';
+    res.on('data', (chunk) => { rawData += chunk; });
+    res.on('end', () => {
+      try {
+        const parsedData = JSON.parse(rawData);
+        return callback(null, parsedData);
+      } catch (e) {
+        return callback(new Error(error.message), null);
+      }
+    });
+  }).on('error', (error) => {
+    return callback(error, null);
+  });
 };
 
 /**
@@ -158,4 +205,4 @@ const parseApiWork = (work) => {
   return book;
 };
 
-module.exports = router;
+module.exports = { router, fetchApi };

@@ -36,4 +36,12 @@ mixin YourReccs
       #reccs-container
 
 // a graph showing number of books read vs total books
-
+mixin YourStats
+  div.card.shadow.mb-4
+    div.card-header.py-3
+      div.table-header.d-flex.justify-content-between
+        h5.font-weight-bold Your Statistics
+    
+    div#reccs-card.card-body
+      // root table node
+      #stats-container

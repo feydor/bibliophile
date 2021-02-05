@@ -31,7 +31,8 @@ block content
   div.tab-content
     div#library-tabs-1.tab-pane.fade.show.active 
       +YourLibrary
-    div#library-tabs-2.tab-pane.fade ##
+    div#library-tabs-2.tab-pane.fade
+      +YourStats
     div#library-tabs-3.tab-pane.fade
       +YourReccs
 
@@ -55,5 +56,6 @@ block content
     
     // Page specific js & css
     script(src="javascripts/dashboard-library.js")
+
     // block specific stylesheet
     link(rel="stylesheet" href="stylesheets/header.css")
