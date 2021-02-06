@@ -12,35 +12,17 @@ block header
         
         ul
           li
-            a.nav-link(href="#") Home
+            a.nav-link(href="/") Home
           li
             a.nav-link(href="/dashboard") Library
-          li
-            a.nav-link(href="#")
+          li.dropdown.mr-4
+            a.nav-link(href="/profile")
               if user
                 span= user.profile.login
-                //img.img-fluid(src="images/undraw_profile.svg")
+                img.img-fluid.profile-img(src="images/user-profile.svg")
               else
                 span= USERNAME
-            li.dropdown
-              ul
-                li
-                  a(href="#")
-                    i.bi.bi-user
-                    span Profile
-                li
-                  a(href="#")
-                    i.bi.bi-cogs
-                    span Settings
-                li
-                  hr
-                li
-                  form#logoutForm(method="post" action="logout")
-                    a(href="javascript:{}" onclick="document.getElementById('logoutForm').submit();"
-                    )
-                      i.bi.bi-sign-out
-                      span Logout
-        
+
         i.bi.bi-list.mobile-nav-toggle
 
   // -- End Header --

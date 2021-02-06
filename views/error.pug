@@ -2,7 +2,11 @@ extends layout
 
 block content
   h1.h3.mb-2(style="margin-top: 15vh")= message
-  h2.mb-4= error.status
+  
+  if error.status
+    h2.mb-4= error.status
+  else
+    p
 
   div.card.shadow.mb-4
     pre #{error.stack} 

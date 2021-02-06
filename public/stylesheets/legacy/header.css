@@ -35,6 +35,13 @@
   margin-top: 3px;
 }
 
+.header .profile-img {
+  margin: 0 0 0 5px;
+  object-fit: contain;
+  max-width: 30px;
+  max-height: 30px;
+}
+
 /*--------------------------------------------------------------
 # Navigation Menu
 --------------------------------------------------------------*/

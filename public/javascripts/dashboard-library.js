@@ -126,6 +126,7 @@
         fetchReccs().then((reccs) => {
           console.log(reccs);
           const reccsTable = createReccsTable(reccs);
+          removeAllChildNodes(RECCS_CONTAINER);
           RECCS_CONTAINER.appendChild(reccsTable);
         });
         break;
@@ -142,7 +143,7 @@
   function renderBookList() {
     // first if the booklist has already been rendered, delete it
     if (BOOKLIST_CONTAINER.hasChildNodes()) {
-      BOOKLIST_CONTAINER.innerHTML = "";
+      removeAllChildNodes(BOOKLIST_CONTAINER)
     }
 
     // based on current list view (detailed view vs gallery view)
@@ -399,7 +400,7 @@
           // show plus icon
           editButton.innerHTML = "";
           let plusicon = document.createElement("i");
-          plusicon.classList.add("fa", "fa-plus");
+          plusicon.classList.add("bi", "bi-plus");
           editButton.appendChild(plusicon);
           editButton.classList.remove("btn-danger");
           editButton.classList.add("btn-success");
@@ -410,14 +411,14 @@
           // show minus icon
           editButton.innerHTML = "";
           let minusicon = document.createElement("i");
-          minusicon.classList.add("fa", "fa-minus");
+          minusicon.classList.add("bi", "bi-dash");
           editButton.appendChild(minusicon);
           editButton.classList.remove("btn-success");
           editButton.classList.add("btn-danger");
         }
       });
       let plusicon = document.createElement("i");
-      plusicon.classList.add("fa", "fa-plus");
+      plusicon.classList.add("bi", "bi-plus");
       editButton.appendChild(plusicon);
       td.appendChild(editButton);
       tr.appendChild(td);
@@ -533,6 +534,7 @@
     });
 
     // Append sortedRows to table's tbody
+    removeAllChildNodes(tbody);
     tbody.innerHTML = "";
     sortedRows.forEach((row) => {
       tbody.appendChild(row);
@@ -555,6 +557,17 @@
     CURRENT_VIEW = VIEW.gallery;
     renderBookList();
   });
+
+  /**
+   * removes all child nodes,
+   * if there are none, nothing happens
+   * @param {HTMLElement} parent 
+   */
+  function removeAllChildNodes(parent) {
+    while (parent.firstChild) {
+          parent.removeChild(parent.firstChild);
+      }
+  }
 
   /**
    * Populates and renders the add-book form

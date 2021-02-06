@@ -131,41 +131,8 @@ router.post("/", async function (req, res) {
   // add the mising fields from the api call
   parseApiBookIsbn(book, apibooks);
 
-  // Storing the book:
-  // if new book,
-  //   store it in library.books,
-  //   get the new book's id,
-  //   add the bookid and user id to a row in library.library
-  // else if pre-exisitng book,
-  //   get the book's id,
-  //   then store userid and bookid relation in library.library
-  console.log("req.userid=", req.userid);
-  //storeBook(book, req.userid);
-
-  var bookid;
-  let bookDoesExist = await bookExists(book.isbn);
-  if (!bookDoesExist) {
-    let insertedBook = await insertBook(book);
-    if (!insertedBook) {
-      console.error("Failed to insert book.");
-    }
-
-    bookid = await getBookId(book.isbn);
-    console.log("bookid: ", bookid);
-
-    let updatedLibrary = await updateLibrary(req.userid, bookid);
-    if (!updatedLibrary) {
-      console.error("Failed to update library.");
-    }
-  } else {
-    bookid = await getBookId(book.title);
-    console.log("bookid: ", bookid);
-
-    let updatedLibrary = await updateLibrary(req.userid, bookid);
-    if (!updatedLibrary) {
-      console.error("Failed to update library.");
-    }
-  }
+  // store in db
+  await storeBook(book, req.userid);
 
   return res.send({
     status: 200,
@@ -179,6 +146,10 @@ router.post("/", async function (req, res) {
  * @example /books/OL151515W
  */
 router.post("/:olid", async (req, res) => {
+  if (!req.userid) {
+    throw console.error("updateUserid middleware not running");
+  }
+
   const olid = req.params.olid;
 
   // get OL api book

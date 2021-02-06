@@ -35,16 +35,4 @@
       }
     });
   }
-
-  /**
-   * Mobile nav dropdowns activate
-   */
-  if (navbar) {
-    navbar.addEventListener("click", (event) => {
-      if (navbar.classList.contains("navbar-mobile")) {
-        event.preventDefault();
-        navbar.firstChild.classList.toggle("dropdown-active");
-      }
-    });
-  }
 })();

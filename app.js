@@ -17,6 +17,7 @@ if (process.env.NODE_ENV !== "production") {
 var publicRouter = require("./routes/public");
 var dashboardRouter = require("./routes/dashboard");
 var usersRouter = require("./routes/users");
+var profileRouter = require("./routes/profile");
 var reccs = require("./routes/reccs");
 var books = require("./routes/books");
 
@@ -44,6 +45,7 @@ app.use(auth.oidc.router);
 // enable routes
 app.use("/", auth.addUser, publicRouter);
 app.use("/dashboard", auth.addUser, auth.loginRequired, dashboardRouter);
+app.use("/profile", auth.addUser, auth.loginRequired, profileRouter);
 app.use("/users", auth.addUser, usersRouter);
 app.use("/books", auth.addUser, auth.updateUserId, books.router);
 app.use("/reccs", auth.addUser, reccs.router);
