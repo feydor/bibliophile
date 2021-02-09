@@ -4,6 +4,7 @@
 const express = require("express");
 const router = express.Router();
 const fetch = require("node-fetch");
+const { check, body, validationResult } = require('express-validator');
 
 // import custom db module
 const db = require("../db");
@@ -43,7 +44,7 @@ router.get("/", async (req, res) => {
 const getUserBooks = async (username) => {
   let query = `SELECT * FROM books INNER JOIN library ON books.id = library.bookid
               INNER JOIN users ON users.id = library.userid WHERE users.username = ?;`;
-  const [rows] = await db.execute(query, [username]);
+  const [rows] = await db.pool.execute(query, [username]);
   return rows.map((row) => {
     return {
       id: row.bookid,
@@ -57,6 +58,46 @@ const getUserBooks = async (username) => {
     };
   });
 };
+
+// UPDATE endpoints
+///////////////////////
+
+/**
+ * UPDATE /books/update/olid:olid
+ */
+router.post("/update/:olid", [
+  check("olid").isAlphanumeric().matches(/OL/i),
+  body("title").isAlphanumeric().not().isEmpty().trim().escape(),
+  body("author").isAlphanumeric().not().isEmpty().trim().escape(),
+  body("publisher").isAlphanumeric().not().isEmpty().trim().escape(),
+  body("publishdate").isNumeric().not().isEmpty().trim().escape(),
+  body("isbn").isISBN().trim().escape(),
+] ,(req, res) => {
+  
+  if (!req.userid) {
+    throw new Error("updateUserid middleware not running");
+  }
+
+  const olid = req.params.olid;
+  
+  // get book from req.body
+  const book = {
+    title: req.body.title,
+    author: req.body.author,
+    subject: req.body.subject,
+    publisher: req.body.publisher,
+    publishdate: req.body.publishdate,
+    isbn: req.body.isbn
+  };
+  console.log(book);
+  // sanitize
+  
+  // update db
+  res.send({ status: 200, statusTxt: "OK"});
+  //return updateBook(olid, book) ? res.send({ status: 200, statusTxt: "OK" }) :
+   // res.send({ status: 500, statusTxt: "Update failed." });
+
+});
 
 // POST endpoints
 //////////////////////
@@ -86,7 +127,7 @@ const getUserBooks = async (username) => {
  */
 router.post("/", async function (req, res) {
   if (!req.user) {
-    throw console.error("addUser middleware not running");
+    return new Error("addUser middleware not running");
   }
 
   console.log("req.body: ", req.body);
@@ -367,7 +408,7 @@ const storeBook = async (book, userid) => {
 const bookExists = async (olid) => {
   const [
     rows,
-  ] = await db.execute(`SELECT title FROM books WHERE books.olid = ?`, [olid]);
+  ] = await db.pool.execute(`SELECT title FROM books WHERE books.olid = ?`, [olid]);
 
   return rows && rows.length > 0 ? true : false;
 };
@@ -379,7 +420,7 @@ const bookExists = async (olid) => {
  * @return {bool} if the book doesn't exist it returns 0
  */
 const getBookId = async (olid) => {
-  const [rows] = await db.execute(`SELECT id FROM books WHERE books.olid = ?`, [
+  const [rows] = await db.pool.execute(`SELECT id FROM books WHERE books.olid = ?`, [
     olid,
   ]);
 
@@ -388,7 +429,7 @@ const getBookId = async (olid) => {
 
 // inserts the book into library.books
 const insertBook = async (book) => {
-  const [rows] = await db.execute(
+  const [rows] = await db.pool.execute(
     `INSERT INTO books(title, author, olid, isbn, publisher, publish_date,
      subject, coverurl) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`,
     [
@@ -406,9 +447,35 @@ const insertBook = async (book) => {
   return rows && rows.affectedRows > 0 ? true : false;
 };
 
+/**
+ * updates the book's fields where the olid matches
+ * @param {String} olid
+ * @param {Object} the updated book object
+ * @return {boolean} true for success, false for failure
+ * (0 rows updated counts as success) 
+ */
+const updateBook = async (olid, book) => {
+  const [rows] = await db.pool.execute(
+    `UPDATE books
+     SET 
+        title = ?, author = ?, subject = ?,
+        publisher = ?, publish_date = ?, isbn = ?
+     WHERE 
+        olid = ?
+     `,
+    [
+      book.title, book.author, book.subject,
+      book.publisher, book.publish_date, book.isbn,
+      olid
+    ]
+  );
+
+  return rows && row.affectedRows ? true : false;
+};
+
 // inserts an entry into library.library containing a userid paired with a bookid
 const updateLibrary = async (userid, bookid) => {
-  const [rows] = await db.execute(
+  const [rows] = await db.pool.execute(
     `INSERT INTO library (userid, bookid)
      VALUE(?, ?)`,
     [userid, bookid]

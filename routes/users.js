@@ -33,7 +33,7 @@ router.get("/verify-user", (req, res) => {
 const isExistingUser = async (username) => {
   const [
     rows,
-  ] = await db.execute(`SELECT id FROM users WHERE users.username = ? `, [
+  ] = await db.pool.execute(`SELECT id FROM users WHERE users.username = ? `, [
     username,
   ]);
   return rows.id ? true : false;
@@ -44,7 +44,7 @@ const isExistingUser = async (username) => {
 const insertNewUser = async (profile) => {
   const [
     rows,
-  ] = await db.execute(
+  ] = await db.pool.execute(
     `INSERT INTO users (username, first_name, last_name, email) VALUE (?, ?, ?, ?);`,
     [profile.login, profile.firstName, profile.lastName, profile.email]
   );

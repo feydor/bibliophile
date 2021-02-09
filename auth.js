@@ -35,7 +35,7 @@ const oidc = new ExpressOIDC({
 // creates req.user and req.locals.user for later use
 let addUser = (req, res, next) => {
   if (!req.userContext) {
-    return next();
+    next();
   }
   //const tokenSet = req.userContext.tokens; // Not needed
   const userinfo = req.userContext.userinfo;
@@ -58,12 +58,12 @@ let addUser = (req, res, next) => {
 // adds userid field to req.user
 let updateUserId = async (req, res, next) => {
   if (!req.user) {
-    throw console.error("addUser middleware not running.");
+    return next(new Error("addUser middleware not running."));
   }
 
   const [
     rows,
-  ] = await db.execute("SELECT id FROM users WHERE users.username = ?", [
+  ] = await db.pool.execute("SELECT id FROM users WHERE users.username = ?", [
     req.user.profile.login,
   ]);
 

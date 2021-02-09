@@ -1,7 +1,5 @@
 const mysql = require("mysql2/promise");
 
-var promisePool;
-
 const pool = mysql.createPool({
   host: "localhost",
   user: "dev",
@@ -12,75 +10,53 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
-// const connection = async () => {
-//   const promisePool = await pool.promise();
-// };
+/**
+ * clears db's rows
+ */
+const clear = async () => {
+  // first delete all rows from all tables
+  let query = `DELETE books, users, library FROM books
+               INNER JOIN users
+               INNER JOIN library`;
 
-// const connection = () => {
-//   return new Promise((resolve, reject) => {
-//     pool.getConnection((err, connection) => {
-//       if (err) reject(err);
-//       console.log("MySQL pool connected: threadId " + connection.threadId);
-//       const query = (sql, binding) => {
-//         return new Promise((resolve, reject) => {
-//           connection.query(sql, binding, (err, result) => {
-//             if (err) reject(err);
-//             resolve(result);
-//           });
-//         });
-//       };
-//       const release = () => {
-//         return new Promise((resolve, reject) => {
-//           if (err) reject(err);
-//           console.log("MySQL pool released: threadId " + connection.threadId);
-//           resolve(connection.release());
-//         });
-//       };
-//       resolve({ query, release });
-//     });
-//   });
-// };
+  const [rows] = await pool.execute(query); 
+  if (!rows) throw new Error();
+};
 
-// const getConnection = async () => {
-//   try {
-//     promisePool = pool.promise();
-//   } catch (error) {
-//     console.log(error);
-//   }
-//   console.log("Connected to MySQL db!");
-//   return promisePool;
-// };
+/**
+ * resets MYSQL db to default values, change parameters below
+ */
+const reset = async () => {
+  const username = "atrab@energyce.cyou";
+  const first_name = "Mary";
+  const last_name = "Sue";
+  const email = "atrab@energyce.cyou"
 
-// const getConnection = async () => {
-//   var dbcon;
-//   try {
-//     dbcon = await mysql.createConnection({
-//       host: "localhost",
-//       user: "dev",
-//       password: "321",
-//       database: "library",
-//     });
-//   } catch (error) {
-//     console.error(error);
-//   }
+  await clearDb();
 
-//   dbcon.connect();
-//   console.log("Connected to MySQL db!");
-//   return dbcon;
-// };
+  // insert the example user
+  query = `INSERT INTO users (id, username, first_name, last_name, email)
+    VALUE ('1000', ${username}, ${first_name}, ${last_name}, ${email})`;
 
-/*
-// connect to mysql server
-var dbcon = mysql.createConnection({
-  host: "localhost",
-  user: "dev",
-  password: "321",
-  database: "library",
-});
+  let [rows] = await pool.execute(query);
+  if (!rows) throw new Error();
 
-dbcon.connect(function (err) {
-  if (err) throw err;
-  console.log("Connected to MySQL db!");
-});
-*/
-module.exports = pool;
+  // insert the example books
+  query = `INSERT INTO books (id, title, author, publisher, publish_date, olid, isbn, subject, coverurl) 
+           VALUES ('1001', 'Republic', 'Plato', 'Knickerbocker Classics', '2019', 'OL27340218M', '9780785837015', 'Philosophy', 'https://covers.openlibrary.org/b/id/8804312-M.jpg'),
+('1002', 'A Connecticut Yankee in King Arthur''s Court', 'Mark Twain', 'Dover Publications', '2001', 'OL6795491M', '0486415910', 'Time Travel', 'https://covers.openlibrary.org/b/id/313169-M.jpg');`;
+  
+  [rows] = await pool.execute(query);
+  if (!rows) throw new Error();
+
+  // finally "give" the example user the two books
+  // set a connection between userid and bookid
+  query = `INSERT INTO library.library (userid, bookid)
+VALUES ('1000', '1001'),
+       ('1000', '1002');`;
+  
+  [rows] = await pool.execute(query);
+  if (!rows) throw new Error(); 
+};
+
+module.exports = { pool, clear, reset };

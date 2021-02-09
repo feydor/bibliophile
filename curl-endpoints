@@ -1,0 +1,4 @@
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{ "title": "A Fake Book", "author": "A Fake Author", "isbn": "9781598181630" }' \
+  http:/localhost:3000/books/update/OL8898080M

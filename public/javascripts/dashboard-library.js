@@ -387,7 +387,8 @@
       let td = document.createElement("td");
       let editButton = document.createElement("button");
       editButton.id = "edit" + tr.id;
-      editButton.classList.add("btn", "btn-sm", "btn-success");
+      editButton.classList.add("btn", "btn-sm", "btn-success", "extra-info-btn");
+      editButton.style.fontSize = "2rem"
       editButton.addEventListener("click", () => {
         let editButtonRow = tr.lastChild;
         let newRow = Table.row(tr);
@@ -406,7 +407,7 @@
           editButton.classList.add("btn-success");
         } else {
           // Open this row
-          newRow.child(format(book)).show();
+          newRow.child(format(book)).show(); // add extra info here
           editButtonRow.classList.add("shown");
           // show minus icon
           editButton.innerHTML = "";
@@ -440,7 +441,7 @@
       "argument 'd.coverurl' should be a string"
     );
 
-    return `<div class="container-fluid extra-info-row"> 
+    return `<div class="container extra-info-row"> 
               <img src=${d.coverurl} />
               <table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px">
                 <tr>
@@ -468,6 +469,9 @@
                   <td>${d.isbn ? d.isbn : ""}</td>
                 </tr>
               </table>
+              <div>
+                <button class="btn btn-warning">Edit</button>
+              </div>
           </div>`;
   }
 

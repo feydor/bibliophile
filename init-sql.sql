@@ -13,9 +13,9 @@ CREATE TABLE library.books (
     PRIMARY KEY(id)
 );
 
-INSERT INTO library.books (title, author, publisher, publish_date, olid, isbn, subject, coverurl)
-VALUES ('Republic', 'Plato', 'Knickerbocker Classics', '2019', 'OL27340218M', '9780785837015', 'Philosophy', 'https://covers.openlibrary.org/b/id/8804312-M.jpg'),
-('A Connecticut Yankee in King Arthur''s Court', 'Mark Twain', 'Dover Publications', '2001', 'OL6795491M', '0486415910', 'Time Travel', 'https://covers.openlibrary.org/b/id/313169-M.jpg');
+INSERT INTO library.books (id, title, author, publisher, publish_date, olid, isbn, subject, coverurl)
+VALUES ('1000', 'Republic', 'Plato', 'Knickerbocker Classics', '2019', 'OL27340218M', '9780785837015', 'Philosophy', 'https://covers.openlibrary.org/b/id/8804312-M.jpg'),
+('1001', 'A Connecticut Yankee in King Arthur''s Court', 'Mark Twain', 'Dover Publications', '2001', 'OL6795491M', '0486415910', 'Time Travel', 'https://covers.openlibrary.org/b/id/313169-M.jpg');
 
 
 CREATE TABLE library.users (
@@ -27,8 +27,8 @@ CREATE TABLE library.users (
     PRIMARY KEY(id)
 );
 
-INSERT INTO library.users (username, first_name, last_name, email)
-VALUE ('atrab@energyce.cyou', 'Faker 2', 'BOTTOM_TEXT', 'atrab@energyce.cyou');
+INSERT INTO library.users (id, username, first_name, last_name, email)
+VALUE ('1000', 'atrab@energyce.cyou', 'Faker 2', 'BOTTOM_TEXT', 'atrab@energyce.cyou');
 
 // sets up relationship between many users and many books
 CREATE TABLE library.library (
@@ -39,16 +39,25 @@ CREATE TABLE library.library (
 );
 
 INSERT INTO library.library (userid, bookid)
-VALUES ('1', '1'),
-       ('1', '2');
+VALUES ('1000', '1000'),
+       ('1000', '1001');
 
 // delete SQL tables
 DROP TABLE library.books;
 DROP TABLE library.users;
 DROP TABLE library.library;
 
+// or
+
+// delete all rows/entries
+DELETE library.books, library.users, library.library
+FROM library.books
+INNER JOIN library.users
+INNER JOIN library.library;
+
 
 // get book titles belonging to a user, by username
+USE library;
 SELECT title
 FROM books 
 INNER JOIN library ON books.id = library.bookid

@@ -37,6 +37,8 @@ router.get("/", async (req, res) => {
   const limit = 10;
   // TODO: for simplicity, the first !null subject is used
   let subjectChosen = subjects.find((subject) => subject !== null);
+  if (!subjectChosen) throw new Error();
+
   // lowercase the string
   subjectChosen = subjectChosen[0].toLowerCase() + subjectChosen.slice(1);
   let url = `https://openlibrary.org/subjects/${subjectChosen}.json?limit=${limit}`;

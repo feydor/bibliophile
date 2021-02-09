@@ -49,10 +49,18 @@
   height: 100%;
 }
 
+.extra-info-btn {
+  margin-bottom: 0.5rem;
+}
+
 /* Fixes alignment of extra description dropdown row in table */
 .extra-info-row {
   display: flex;
   justify-content: center;
+}
+
+.extra-info-row table {
+  margin: 10px;
 }
 
 /* shrinks covers in reccs tab */
