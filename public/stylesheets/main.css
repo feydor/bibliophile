@@ -1,3 +1,4 @@
+@import './components/crud-table.css';
 :root {
   scroll-behavior: smooth;
   font-family: "Poppins", sans-serif;
@@ -519,6 +520,16 @@ section {
   background-position: center;
   width: 100%;
   height: 100%;
+}
+
+#empty-booklist-container {
+  color: grey;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  margin: auto;
+  width: 100%;
 }
 
 .extra-info-btn {

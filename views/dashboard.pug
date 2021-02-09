@@ -11,17 +11,13 @@ block content
   include mixins/dashboard.pug
 
   // Page Heading
-  h1.h3(style="margin-top: 15vh") Virtual Library
-  p.mb-4 Insert instructions about virtual-library here.
+  h1.h3.mb-4(style="margin-top: 10vh") Dashboard
 
   // tabs nav
   ul#libraryTabNav.nav.nav-tabs(role="tablist")
     li.nav-item
       a#libraryTabs1.nav-link.active(href="#library-tabs-1" aria-current="page") 
         i.bi.bi-bookshelf
-    li.nav-item
-      a#libraryTabs2.nav-link(href="#library-tabs-2")
-        i.bi.bi-bar-chart-line
     li.nav-item
       a#libraryTabs3.nav-link(href="#library-tabs-3")
         i.bi.bi-bookmark-star
@@ -52,7 +48,8 @@ block content
       rel="stylesheet" 
       href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css"
     )
-    
+
+
     // Page specific js & css
     script(src="javascripts/dashboard-library.js")
     link(rel="stylesheet" href="stylesheets/main.css")

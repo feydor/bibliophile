@@ -388,7 +388,7 @@
       let editButton = document.createElement("button");
       editButton.id = "edit" + tr.id;
       editButton.classList.add("btn", "btn-sm", "btn-success", "extra-info-btn");
-      editButton.style.fontSize = "2rem"
+      editButton.style.fontSize = "1.5rem"
       editButton.addEventListener("click", () => {
         let editButtonRow = tr.lastChild;
         let newRow = Table.row(tr);
@@ -401,7 +401,7 @@
           // show plus icon
           editButton.innerHTML = "";
           let plusicon = document.createElement("i");
-          plusicon.classList.add("bi", "bi-plus");
+          plusicon.classList.add("bi", "bi-arrow-bar-down");
           editButton.appendChild(plusicon);
           editButton.classList.remove("btn-danger");
           editButton.classList.add("btn-success");
@@ -412,14 +412,14 @@
           // show minus icon
           editButton.innerHTML = "";
           let minusicon = document.createElement("i");
-          minusicon.classList.add("bi", "bi-dash");
+          minusicon.classList.add("bi", "bi-arrow-bar-up");
           editButton.appendChild(minusicon);
           editButton.classList.remove("btn-success");
           editButton.classList.add("btn-danger");
         }
       });
       let plusicon = document.createElement("i");
-      plusicon.classList.add("bi", "bi-plus");
+      plusicon.classList.add("bi", "bi-arrow-bar-down");
       editButton.appendChild(plusicon);
       td.appendChild(editButton);
       tr.appendChild(td);
@@ -469,9 +469,6 @@
                   <td>${d.isbn ? d.isbn : ""}</td>
                 </tr>
               </table>
-              <div>
-                <button class="btn btn-warning">Edit</button>
-              </div>
           </div>`;
   }
 

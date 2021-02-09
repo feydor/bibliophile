@@ -49,6 +49,16 @@
   height: 100%;
 }
 
+#empty-booklist-container {
+  color: grey;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  margin: auto;
+  width: 100%;
+}
+
 .extra-info-btn {
   margin-bottom: 0.5rem;
 }
