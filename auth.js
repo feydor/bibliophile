@@ -13,11 +13,11 @@ var oktaClient = new okta.Client({
 
 // OpenID Connect client
 const oidc = new ExpressOIDC({
-  issuer: "https://dev-1158936.okta.com/oauth2/default",
+  issuer: process.env.OIDC_ISSUER,
   client_id: process.env.OKTA_CLIENT_ID,
   client_secret: process.env.OKTA_CLIENT_SECRET,
-  appBaseUrl: "http://localhost:3000",
-  redirect_uri: "http://localhost:3000/users/callback",
+  appBaseUrl: process.env.BASEURL,
+  redirect_uri: process.env.OIDC_REDIRECTURL,
   scope: "openid profile",
   routes: {
     login: {

@@ -1,10 +1,14 @@
 const mysql = require("mysql2/promise");
 
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
+
 const pool = mysql.createPool({
-  host: "localhost",
-  user: "dev",
-  password: "321",
-  database: "library",
+  host: process.env.MYSQL_HOST,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DB,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -19,7 +23,7 @@ const clear = async () => {
                INNER JOIN users
                INNER JOIN library`;
 
-  const [rows] = await pool.execute(query); 
+  const [rows] = await pool.execute(query);
   if (!rows) throw new Error();
 };
 
@@ -30,7 +34,7 @@ const reset = async () => {
   const username = "atrab@energyce.cyou";
   const first_name = "Mary";
   const last_name = "Sue";
-  const email = "atrab@energyce.cyou"
+  const email = "atrab@energyce.cyou";
 
   await clearDb();
 
@@ -45,7 +49,7 @@ const reset = async () => {
   query = `INSERT INTO books (id, title, author, publisher, publish_date, olid, isbn, subject, coverurl) 
            VALUES ('1001', 'Republic', 'Plato', 'Knickerbocker Classics', '2019', 'OL27340218M', '9780785837015', 'Philosophy', 'https://covers.openlibrary.org/b/id/8804312-M.jpg'),
 ('1002', 'A Connecticut Yankee in King Arthur''s Court', 'Mark Twain', 'Dover Publications', '2001', 'OL6795491M', '0486415910', 'Time Travel', 'https://covers.openlibrary.org/b/id/313169-M.jpg');`;
-  
+
   [rows] = await pool.execute(query);
   if (!rows) throw new Error();
 
@@ -54,9 +58,9 @@ const reset = async () => {
   query = `INSERT INTO library.library (userid, bookid)
 VALUES ('1000', '1001'),
        ('1000', '1002');`;
-  
+
   [rows] = await pool.execute(query);
-  if (!rows) throw new Error(); 
+  if (!rows) throw new Error();
 };
 
 module.exports = { pool, clear, reset };

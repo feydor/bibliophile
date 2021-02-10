@@ -2,7 +2,7 @@
 "use strict";
 import * as els from "./eventlisteners.js";
 
-(function() {
+(function () {
   // constants
   const GETBOOKS = "http://localhost:3000/books";
   const POSTBOOK = "http://localhost:3000/books";
@@ -145,7 +145,7 @@ import * as els from "./eventlisteners.js";
   function renderBookList() {
     // first if the booklist has already been rendered, delete it
     if (BOOKLIST_CONTAINER.hasChildNodes()) {
-      removeAllChildNodes(BOOKLIST_CONTAINER)
+      removeAllChildNodes(BOOKLIST_CONTAINER);
     }
 
     // based on current list view (detailed view vs gallery view)
@@ -201,8 +201,10 @@ import * as els from "./eventlisteners.js";
    *           AddButton
    */
   function createReccsTable(reccs) {
-    console.assert(Array.isArray(reccs["reccs"]) === true,
-      "argument 'reccs' must be an array");
+    console.assert(
+      Array.isArray(reccs["reccs"]) === true,
+      "argument 'reccs' must be an array"
+    );
 
     let root = document.createElement("ul");
     root.classList.add("list-group");
@@ -316,9 +318,10 @@ import * as els from "./eventlisteners.js";
     );
 
     let root = document.createElement("table");
-    root.classList.add("u-full-width", "table-hover");
+    root.classList.add("u-full-width", "table-hover", "compact");
     root.id = "dataTable";
     root.style.marginBottom = "25px";
+    root.style.width = "100%";
     root.alphanum = true; // toggle boolean for alphanum and reverse sorting
 
     // if window.innerWidth < 768px, then show less columns
@@ -374,8 +377,13 @@ import * as els from "./eventlisteners.js";
       let td = document.createElement("td");
       let editButton = document.createElement("button");
       editButton.id = "edit" + tr.id;
-      editButton.classList.add("btn", "btn-sm", "btn-success", "extra-info-btn");
-      editButton.style.fontSize = "1.5rem"
+      editButton.classList.add(
+        "btn",
+        "btn-sm",
+        "btn-success",
+        "extra-info-btn"
+      );
+      editButton.style.fontSize = "1.5rem";
       let plusicon = document.createElement("i");
       plusicon.classList.add("bi", "bi-arrow-bar-down");
       editButton.appendChild(plusicon);
@@ -414,7 +422,9 @@ import * as els from "./eventlisteners.js";
           let deleteIcon = document.createElement("i");
           deleteIcon.classList.add("bi", "bi-trash");
           deleteButton.appendChild(deleteIcon);
-          deleteButton.addEventListener("click", () => { els.deleteRow(currentOlid, DELETEURL) });
+          deleteButton.addEventListener("click", () => {
+            els.deleteRow(currentOlid, DELETEURL);
+          });
           document.querySelector(".extra-info-row").appendChild(deleteButton);
         }
       });
@@ -521,12 +531,12 @@ import * as els from "./eventlisteners.js";
   /**
    * removes all child nodes,
    * if there are none, nothing happens
-   * @param {HTMLElement} parent 
+   * @param {HTMLElement} parent
    */
   function removeAllChildNodes(parent) {
     while (parent.firstChild) {
-          parent.removeChild(parent.firstChild);
-      }
+      parent.removeChild(parent.firstChild);
+    }
   }
 
   /**
@@ -653,17 +663,17 @@ import * as els from "./eventlisteners.js";
    * hides the form, shows the add button
    */
   const hideBookForm = () => {
-      FORMNODE.style.display = "none";
-      ADDBUTTON.style.display = "";
-  }
-  
+    FORMNODE.style.display = "none";
+    ADDBUTTON.style.display = "";
+  };
+
   /**
    * shows the form, hides the add button
    */
   const showBookForm = () => {
-      FORMNODE.style.display = "";
-      ADDBUTTON.style.display = "none";
-  }
+    FORMNODE.style.display = "";
+    ADDBUTTON.style.display = "none";
+  };
 
   /**
    * Handles pressing the submit button in the add books form
@@ -676,7 +686,7 @@ import * as els from "./eventlisteners.js";
       isbn: document.getElementById("isbnInput").value,
     };
 
-    els.submitBook(event, hideBookForm, data, POSTBOOK);    
+    els.submitBook(event, hideBookForm, data, POSTBOOK);
   });
 
   /**

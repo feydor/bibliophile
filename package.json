@@ -1,9 +1,9 @@
 {
   "name": "virtual-library",
   "version": "0.0.0",
+  "description": "An Express.js app to keep track of personal libraries and reccomendations.",
   "private": true,
   "scripts": {
-    "prestart": "sass public/stylesheets/main.scss public/stylesheets/main.css",
     "sass": "sass public/stylesheets/main.scss public/stylesheets/main.css",
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
@@ -33,7 +33,6 @@
     "prettier": "2.2.1",
     "supertest": "^6.1.3"
   },
-  "description": "![](./public/images/logo.png)",
   "main": "app.js",
   "directories": {
     "example": "examples",
@@ -44,8 +43,8 @@
     "url": "git+https://github.com/feydor/bibliophile.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Victor Reyes",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/feydor/bibliophile/issues"
   },

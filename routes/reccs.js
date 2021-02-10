@@ -4,7 +4,7 @@
 const express = require("express");
 const router = express.Router();
 const assert = require("assert").strict;
-const https = require('https');
+const https = require("https");
 
 // import custom db module
 const booksRouter = require("./books");
@@ -27,7 +27,7 @@ router.get("/", async (req, res) => {
   let books = [];
   books = await booksRouter.getUserBooks(req.user.profile.login);
   if (books.length < 1) {
-    return res.send({ status: 406, statusTxt: "User has no books."});
+    return res.send({ status: 406, statusTxt: "User has no books." });
   }
   // console.log("GET /books: ", books);
 
@@ -47,35 +47,31 @@ router.get("/", async (req, res) => {
   let url = `https://openlibrary.org/subjects/${subjectChosen}.json?limit=${limit}`;
 
   try {
-    fetchApi(
-      url,
-      (error, result) => {
-        if (error) throw console.error(error);
-        apiResponse = result;
-        
-        if (apiResponse["work_count"] <= 0) {
-          return res.send({ status: 400, statusTxt: "Not a valid subject." });
-        }
+    fetchApi(url, (error, result) => {
+      if (error) throw console.error(error);
+      apiResponse = result;
 
-        // For each new book (up to MAXNUM)
-        // parse received objects into a new book
-        // add to an array
-        // and return
-        const MAXNUM = 5;
-        let reccsList = [];
-        for (let i = 0; i < MAXNUM; ++i) {
-          let work = apiResponse["works"][i];
-          let recc = parseApiWork(work);
-          reccsList.push(recc);
-        }
-
-        return res.send({ reccs: reccsList, status: 200, statusTxt: "OK" });
+      if (apiResponse["work_count"] <= 0) {
+        return res.send({ status: 400, statusTxt: "Not a valid subject." });
       }
-    );
+
+      // For each new book (up to MAXNUM)
+      // parse received objects into a new book
+      // add to an array
+      // and return
+      const MAXNUM = 5;
+      let reccsList = [];
+      for (let i = 0; i < MAXNUM; ++i) {
+        let work = apiResponse["works"][i];
+        let recc = parseApiWork(work);
+        reccsList.push(recc);
+      }
+
+      return res.send({ reccs: reccsList, status: 200, statusTxt: "OK" });
+    });
   } catch (error) {
     console.error(error);
   }
-
 
   // For each new book (up to MAXNUM)
   // parse received objects into a new book
@@ -114,39 +110,51 @@ const fetchApi = (url, callback) => {
   assert.equal(typeof url, "string", "argument 'url' must be a string");
   assert.equal(typeof callback, "function");
 
-  https.get(url, (res) => {
-    const { statusCode } = res;
-    const contentType = res.headers['content-type'];
+  https
+    .get(url, (res) => {
+      const { statusCode } = res;
+      const contentType = res.headers["content-type"];
 
-    let error;
-    // Any 2xx status code signals a successful response but
-    // here we're only checking for 200.
-    if (statusCode !== 200) {
-      return callback(new Error('Request Failed.\n' + `Status Code: ${statusCode}`), null);
-    } else if (!/^application\/json/.test(contentType)) {
-      return callback(new Error('Invalid content-type.\n' +
-        `Expected application/json but received ${contentType}`), null);
-    }
-    if (error) {
-      // Consume response data to free up memory
-      res.resume();
-      return callback(new Error(error.message), null);
-    }
-
-    res.setEncoding('utf8');
-    let rawData = '';
-    res.on('data', (chunk) => { rawData += chunk; });
-    res.on('end', () => {
-      try {
-        const parsedData = JSON.parse(rawData);
-        return callback(null, parsedData);
-      } catch (e) {
+      let error;
+      // Any 2xx status code signals a successful response but
+      // here we're only checking for 200.
+      if (statusCode !== 200) {
+        return callback(
+          new Error("Request Failed.\n" + `Status Code: ${statusCode}`),
+          null
+        );
+      } else if (!/^application\/json/.test(contentType)) {
+        return callback(
+          new Error(
+            "Invalid content-type.\n" +
+              `Expected application/json but received ${contentType}`
+          ),
+          null
+        );
+      }
+      if (error) {
+        // Consume response data to free up memory
+        res.resume();
         return callback(new Error(error.message), null);
       }
+
+      res.setEncoding("utf8");
+      let rawData = "";
+      res.on("data", (chunk) => {
+        rawData += chunk;
+      });
+      res.on("end", () => {
+        try {
+          const parsedData = JSON.parse(rawData);
+          return callback(null, parsedData);
+        } catch (e) {
+          return callback(new Error(error.message), null);
+        }
+      });
+    })
+    .on("error", (error) => {
+      return callback(error, null);
     });
-  }).on('error', (error) => {
-    return callback(error, null);
-  });
 };
 
 /**

@@ -8,7 +8,6 @@ const session = require("express-session");
 // import other custom modules
 const auth = require("./auth");
 
-// TODO: switch between production and debug
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }

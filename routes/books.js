@@ -4,11 +4,12 @@
 const express = require("express");
 const router = express.Router();
 const fetch = require("node-fetch");
-const { check, body, validationResult } = require('express-validator');
+const { check, body, validationResult } = require("express-validator");
 
 // import custom db module
 const db = require("../db");
-const DEFAULT_BOOK_COVER = "https://2.bp.blogspot.com/-MEkIz1Bld0c/T_4oRfvREPI/AAAAAAAAA8k/wZHwb6kUPlw/s1600/blank+book+cover.jpg";
+const DEFAULT_BOOK_COVER =
+  "https://2.bp.blogspot.com/-MEkIz1Bld0c/T_4oRfvREPI/AAAAAAAAA8k/wZHwb6kUPlw/s1600/blank+book+cover.jpg";
 
 // Ideas for possible middlewares
 // 1. Check for OpenLibrary API book and pass it down as Book
@@ -67,39 +68,40 @@ const getUserBooks = async (username) => {
 /**
  * UPDATE /books/update/olid:olid
  */
-router.post("/update/:olid", [
-  check("olid").isAlphanumeric().matches(/OL/i),
-  body("title").isAlphanumeric().not().isEmpty().trim().escape(),
-  body("author").isAlphanumeric().not().isEmpty().trim().escape(),
-  body("publisher").isAlphanumeric().not().isEmpty().trim().escape(),
-  body("publishdate").isNumeric().not().isEmpty().trim().escape(),
-  body("isbn").isISBN().trim().escape(),
-] ,(req, res) => {
-  
-  if (!req.userid) {
-    throw new Error("updateUserid middleware not running");
+router.post(
+  "/update/:olid",
+  [
+    check("olid").isAlphanumeric().matches(/OL/i),
+    body("title").isAlphanumeric().not().isEmpty().trim().escape(),
+    body("author").isAlphanumeric().not().isEmpty().trim().escape(),
+    body("publisher").isAlphanumeric().not().isEmpty().trim().escape(),
+    body("publishdate").isNumeric().not().isEmpty().trim().escape(),
+    body("isbn").isISBN().trim().escape(),
+  ],
+  (req, res) => {
+    if (!req.userid) {
+      throw new Error("updateUserid middleware not running");
+    }
+
+    const olid = req.params.olid;
+
+    // get book from req.body
+    const book = {
+      title: req.body.title,
+      author: req.body.author,
+      subject: req.body.subject,
+      publisher: req.body.publisher,
+      publishdate: req.body.publishdate,
+      isbn: req.body.isbn,
+    };
+    console.log(book);
+
+    // update db
+    res.send({ status: 200, statusTxt: "OK" });
+    //return updateBook(olid, book) ? res.send({ status: 200, statusTxt: "OK" }) :
+    // res.send({ status: 500, statusTxt: "Update failed." });
   }
-
-  const olid = req.params.olid;
-  
-  // get book from req.body
-  const book = {
-    title: req.body.title,
-    author: req.body.author,
-    subject: req.body.subject,
-    publisher: req.body.publisher,
-    publishdate: req.body.publishdate,
-    isbn: req.body.isbn
-  };
-  console.log(book);
-  
-  // update db
-  res.send({ status: 200, statusTxt: "OK"});
-  //return updateBook(olid, book) ? res.send({ status: 200, statusTxt: "OK" }) :
-   // res.send({ status: 500, statusTxt: "Update failed." });
-
-});
-
+);
 
 // DELETE endpoints
 ////////////////////////////
@@ -107,22 +109,25 @@ router.post("/update/:olid", [
 /**
  * DELETE /books/olid
  */
-router.delete("/:olid", [check("olid").isAlphanumeric().matches(/OL/i)], async (req, res) => {
-  if (!req.userid) {
-    throw new Error("updateUserid middleware is not running");
+router.delete(
+  "/:olid",
+  [check("olid").isAlphanumeric().matches(/OL/i)],
+  async (req, res) => {
+    if (!req.userid) {
+      throw new Error("updateUserid middleware is not running");
+    }
+
+    const olid = req.params.olid;
+    console.log(olid);
+
+    // delete from db
+    let deleted = await deleteBook(olid);
+
+    return deleted
+      ? res.send({ status: 200, statusTxt: "OK" })
+      : res.send({ status: 500, statusTxt: "FAILED" });
   }
-
-  const olid = req.params.olid;
-  console.log(olid);
-
-  // delete from db
-  let deleted = await deleteBook(olid);
-
-  return deleted ? res.send({ status: 200, statusTxt: "OK" }) 
-    : res.send({ status: 500, statusTxt: "FAILED"}); 
-
-});
-
+);
 
 // POST endpoints
 //////////////////////
@@ -435,7 +440,9 @@ const storeBook = async (book, userid) => {
 const bookExists = async (olid) => {
   const [
     rows,
-  ] = await db.pool.execute(`SELECT title FROM books WHERE books.olid = ?`, [olid]);
+  ] = await db.pool.execute(`SELECT title FROM books WHERE books.olid = ?`, [
+    olid,
+  ]);
 
   return rows && rows.length > 0 ? true : false;
 };
@@ -447,7 +454,9 @@ const bookExists = async (olid) => {
  * @return {bool} if the book doesn't exist it returns 0
  */
 const getBookId = async (olid) => {
-  const [rows] = await db.pool.execute(`SELECT id FROM books WHERE books.olid = ?`, [
+  const [
+    rows,
+  ] = await db.pool.execute(`SELECT id FROM books WHERE books.olid = ?`, [
     olid,
   ]);
 
@@ -479,7 +488,7 @@ const insertBook = async (book) => {
  * @param {String} olid
  * @param {Object} the updated book object
  * @return {boolean} true for success, false for failure
- * (0 rows updated counts as success) 
+ * (0 rows updated counts as success)
  */
 const updateBook = async (olid, book) => {
   const [rows] = await db.pool.execute(
@@ -491,9 +500,13 @@ const updateBook = async (olid, book) => {
         olid = ?
      `,
     [
-      book.title, book.author, book.subject,
-      book.publisher, book.publish_date, book.isbn,
-      olid
+      book.title,
+      book.author,
+      book.subject,
+      book.publisher,
+      book.publish_date,
+      book.isbn,
+      olid,
     ]
   );
 
@@ -519,7 +532,7 @@ const updateLibrary = async (userid, bookid) => {
 const deleteBook = async (olid) => {
   const [rows] = await db.pool.execute(
     `DELETE FROM books WHERE books.olid = ?`,
-    [ olid ]
+    [olid]
   );
 
   return rows && rows.affectedRows > 0 ? true : false;

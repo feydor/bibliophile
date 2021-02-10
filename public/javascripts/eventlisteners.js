@@ -2,7 +2,7 @@
  * a modules file for importing event listener functions
  * example usage: import * as els from './eventlisteners.js'
  */
-"use strict"
+"use strict";
 
 /**
  * sends a DELETE request to the url
@@ -35,7 +35,10 @@ export const deleteRow = async (olid, url) => {
  * reloads the current page
  */
 export const submitBook = (event, hideBookForm, data, url) => {
-  console.assert(typeof hideBookForm === "function", "param 'hideBookForm' must be a function");
+  console.assert(
+    typeof hideBookForm === "function",
+    "param 'hideBookForm' must be a function"
+  );
 
   // Prevent form from submitting to the server
   event.preventDefault();
@@ -152,11 +155,10 @@ export function sortTable(tableid = "booklist-id", column = 0) {
 /**
  * removes all child nodes,
  * if there are none, nothing happens
- * @param {HTMLElement} parent 
+ * @param {HTMLElement} parent
  */
-function removeAllChildNodes(parent) {                                       
-  while (parent.firstChild) {                                               
+function removeAllChildNodes(parent) {
+  while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
-  }                                                                       
-}                                                                           
-
+  }
+}
