@@ -4,10 +4,10 @@ import * as els from "./eventlisteners.js";
 
 (function () {
   // constants
-  const GETBOOKS = "http://localhost:3000/books";
-  const POSTBOOK = "http://localhost:3000/books";
-  const DELETEURL = "http://localhost:3000/books";
-  const DOMAIN = "http://localhost:3000/";
+  const DOMAIN = "http://localhost:5000/"
+  const GETBOOKS = DOMAIN + "books";
+  const POSTBOOK = DOMAIN + "books";
+  const DELETEURL = DOMAIN + "books";
   const BOOKLIST_CONTAINER = document.getElementById("booklist-container");
   const RECCS_CONTAINER = document.getElementById("reccs-container");
   const FORMNODE = document.getElementById("add-book-form");
@@ -121,12 +121,17 @@ import * as els from "./eventlisteners.js";
 
       case "libraryTabs3":
         const fetchReccs = async () => {
-          const response = await fetch(`http://localhost:3000/reccs`);
+          var response;
+          try {
+            response = await fetch(`${DOMAIN}reccs`);
+          } catch (error) {
+            console.error(error);
+          }
           return response.json();
         };
 
         fetchReccs().then((reccs) => {
-          console.log(reccs);
+          // console.log(reccs);
           const reccsTable = createReccsTable(reccs);
           removeAllChildNodes(RECCS_CONTAINER);
           RECCS_CONTAINER.appendChild(reccsTable);

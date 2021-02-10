@@ -1,3 +1,10 @@
+/* debug use */
+/** 
+ * MYSQL_HOST=localhost
+ * MYSQL_USER=dev
+ * MYSQL_PASSWORD=321
+ * MYSQL_DB=library
+ */
 CREATE DATABASE library;
 
 CREATE TABLE library.books (

@@ -412,7 +412,7 @@ const storeBook = async (book, userid) => {
     }
 
     bookid = await getBookId(book.olid);
-    console.log("bookid: ", bookid);
+    // console.log("bookid: ", bookid);
 
     let updatedLibrary = await updateLibrary(userid, bookid);
     if (!updatedLibrary) {
@@ -420,7 +420,7 @@ const storeBook = async (book, userid) => {
     }
   } else {
     bookid = await getBookId(book.title);
-    console.log("bookid: ", bookid);
+    // console.log("bookid: ", bookid);
 
     let updatedLibrary = await updateLibrary(userid, bookid);
     if (!updatedLibrary) {

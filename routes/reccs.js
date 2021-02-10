@@ -31,19 +31,20 @@ router.get("/", async (req, res) => {
   }
   // console.log("GET /books: ", books);
 
-  let subjects = books.map((book) => {
-    return book.subject;
-  });
+  let subjects = books.map((book) => { book.subject });
+
+  // TODO: for simplicity, the first !null subject is used
+  let subjectChosen = subjects.find((subject) => subject !== null);
+  if (!subjectChosen) {
+    return res.send({ status: 500, statusTxt: "No subject found."});
+  }
+
+  // lowercase the whole string and replace spaces with dashes
+  subjectChosen = subjectChosen.toLowerCase().replace(/\s/g, '-');
 
   // example API call: https://openlibrary.org/subjects/love.json
   let apiResponse = {};
   const limit = 10;
-  // TODO: for simplicity, the first !null subject is used
-  let subjectChosen = subjects.find((subject) => subject !== null);
-  if (!subjectChosen) throw new Error();
-
-  // lowercase the string
-  subjectChosen = subjectChosen[0].toLowerCase() + subjectChosen.slice(1);
   let url = `https://openlibrary.org/subjects/${subjectChosen}.json?limit=${limit}`;
 
   try {
@@ -51,8 +52,8 @@ router.get("/", async (req, res) => {
       if (error) throw console.error(error);
       apiResponse = result;
 
-      if (apiResponse["work_count"] <= 0) {
-        return res.send({ status: 400, statusTxt: "Not a valid subject." });
+      if (apiResponse["work_count"] < 1) {
+        return res.send({ status: 500, statusTxt: "Not a valid subject." });
       }
 
       // For each new book (up to MAXNUM)
@@ -71,29 +72,8 @@ router.get("/", async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    return res.send({ status: 500, statusTxt: error });
   }
-
-  // For each new book (up to MAXNUM)
-  // parse received objects into a new book
-  // add to an array
-  // and return
-  /*
-  if (apiResponse["work_count"] <= 0) {
-    return res.send({ status: 400, statusTxt: "Not a valid subject." });
-  }
-
-  const MAXNUM = 5;
-  let reccsList = [];
-  for (let i = 0; i < MAXNUM; ++i) {
-    let work = apiResponse["works"][i];
-    let recc = parseApiWork(work);
-    reccsList.push(recc);
-  }
-
-  // console.log(reccsList);
-
-  return res.send({ reccs: reccsList, status: 200, statusTxt: "OK" });
-  */
 });
 
 // Helper functions
