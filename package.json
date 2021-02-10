@@ -27,7 +27,6 @@
     "mysql2": "^2.2.5",
     "node-fetch": "^2.6.1",
     "pug": "2.0.0-beta11",
-    "react-crud-table": "^0.2.0",
     "sinon": "^9.2.4"
   },
   "devDependencies": {

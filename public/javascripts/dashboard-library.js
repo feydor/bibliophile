@@ -1,10 +1,12 @@
 /* dashboard-library.js ~ CRUD requests, form creation, table button functionality */
-(function() {
-  "use strict";
+"use strict";
+import * as els from "./eventlisteners.js";
 
+(function() {
   // constants
   const GETBOOKS = "http://localhost:3000/books";
   const POSTBOOK = "http://localhost:3000/books";
+  const DELETEURL = "http://localhost:3000/books";
   const DOMAIN = "http://localhost:3000/";
   const BOOKLIST_CONTAINER = document.getElementById("booklist-container");
   const RECCS_CONTAINER = document.getElementById("reccs-container");
@@ -276,22 +278,8 @@
       addBtn.setAttribute("href", "#");
       addBtn.textContent = "Add To List";
       addBtn.addEventListener("click", async (event) => {
-        event.preventDefault();
-
-        console.log("form submit");
-
-        let postResponse = await fetch(`${DOMAIN}books/${recc.key}`, {
-          method: "POST",
-        });
-
-        let responseJson = await postResponse.json();
-
-        console.log(responseJson);
-        if (responseJson.status !== 200) {
-          console.error(responseJson.status);
-        }
-
-        window.location.href = DOMAIN + "dashboard";
+        const url = `${DOMAIN}books/${recc.key}`;
+        els.submitReccs(event, url, DOMAIN + "dashboard");
       });
       form.appendChild(addBtn);
       btnDiv.appendChild(form);
@@ -350,7 +338,7 @@
       ];
       keysToRender = ["title", "author", "publisher", "publishdate", "subject"];
     }
-    tableHeadings.push(""); // extra heading for edit button column
+    tableHeadings.push(""); // pushes an extra heading for edit button column
 
     // add table headings to table
     let thead = document.createElement("thead");
@@ -360,7 +348,7 @@
       th.textContent = header;
       th.id = idx; // is used to select column to sort
       th.addEventListener("click", () => {
-        sortTable(root.id, idx);
+        els.sortTable(root.id, idx);
       });
       tr.appendChild(th);
     });
@@ -370,9 +358,8 @@
     // add table datum to table
     // 1 row per book (bookList.length)
     let tbody = document.createElement("tbody");
-    // dynamic data based on window.innerWidth
-    // create a tr, populate it, then append it to tbody
     bookList.forEach((book) => {
+      const currentOlid = book.olid; // identifier for event listeners
       let tr = document.createElement("tr");
       tr.id = "book" + book.id;
       Object.entries(book).forEach(([key, value]) => {
@@ -389,6 +376,9 @@
       editButton.id = "edit" + tr.id;
       editButton.classList.add("btn", "btn-sm", "btn-success", "extra-info-btn");
       editButton.style.fontSize = "1.5rem"
+      let plusicon = document.createElement("i");
+      plusicon.classList.add("bi", "bi-arrow-bar-down");
+      editButton.appendChild(plusicon);
       editButton.addEventListener("click", () => {
         let editButtonRow = tr.lastChild;
         let newRow = Table.row(tr);
@@ -406,7 +396,8 @@
           editButton.classList.remove("btn-danger");
           editButton.classList.add("btn-success");
         } else {
-          // Open this row
+          // Open this row and
+          // Append the delete button
           newRow.child(format(book)).show(); // add extra info here
           editButtonRow.classList.add("shown");
           // show minus icon
@@ -416,11 +407,17 @@
           editButton.appendChild(minusicon);
           editButton.classList.remove("btn-success");
           editButton.classList.add("btn-danger");
+
+          let deleteButton = document.createElement("button");
+          deleteButton.textContent = "Delete ";
+          deleteButton.classList.add("btn", "btn-danger");
+          let deleteIcon = document.createElement("i");
+          deleteIcon.classList.add("bi", "bi-trash");
+          deleteButton.appendChild(deleteIcon);
+          deleteButton.addEventListener("click", () => { els.deleteRow(currentOlid, DELETEURL) });
+          document.querySelector(".extra-info-row").appendChild(deleteButton);
         }
       });
-      let plusicon = document.createElement("i");
-      plusicon.classList.add("bi", "bi-arrow-bar-down");
-      editButton.appendChild(plusicon);
       td.appendChild(editButton);
       tr.appendChild(td);
 
@@ -506,44 +503,6 @@
   }
 
   /**
-   * Sorts a table by column heading (title, author, etc)
-   *
-   * @param {string} tableid The id of the table to be sorted.
-   * @param {number} column The column heading to sort by, starting from 0 or the leftmost column.
-   * @return {number} 1 for success, 0 for failure (table may be null or undefined).
-   */
-  function sortTable(tableid = "booklist-id", column = 0) {
-    const table = document.getElementById(tableid);
-
-    if (table === undefined || table === null) {
-      return 0;
-    }
-
-    // Get rows from the table into an Array
-    let tbody = table.getElementsByTagName("tbody")[0];
-    let rows = Array.from(tbody.getElementsByTagName("tr"));
-
-    // Sort rows, toggle between alphanum and reverse
-    table.alphanum = !table.alphanum;
-    let sortedRows = [];
-    sortedRows = rows.sort((a, b) => {
-      let colA = a.getElementsByTagName("td")[column];
-      let colB = b.getElementsByTagName("td")[column];
-      return table.alphanum
-        ? colA.textContent > colB.textContent
-        : colA.textContent < colB.textContent;
-    });
-
-    // Append sortedRows to table's tbody
-    removeAllChildNodes(tbody);
-    tbody.innerHTML = "";
-    sortedRows.forEach((row) => {
-      tbody.appendChild(row);
-    });
-    return 1;
-  }
-
-  /**
    * click event listener to render Library list-view
    */
   document.getElementById("list-view").addEventListener("click", () => {
@@ -574,9 +533,7 @@
    * Populates and renders the add-book form
    */
   function renderAddBookForm() {
-    // first hide the add book button and redisplay the formNode
-    ADDBUTTON.style.display = "none";
-    FORMNODE.style.display = "";
+    showBookForm();
 
     // if FORMNODE has class of "rendered", then do nothing
     if (FORMNODE.classList.contains("rendered")) {
@@ -647,35 +604,9 @@
     isbnInput.setAttribute("name", "isbnInput");
     isbnInput.required = true;
     // validate input as the user types (10 or 13 digit isbn)
-    let timeout = null;
     isbnInput.addEventListener("input", () => {
-      // throttle input checking for 1 second
-      // Clear the timeout if it has already been set.
-      // This will prevent the previous task from executing
-      // if it has been less than <MILLISECONDS>
-      clearTimeout(timeout);
-
-      // Make a new timeout set to go off in 1000ms (1 second)
-      timeout = setTimeout(function () {
-        let regex = /^([0-9]{10,13})$/g;
-        let isbn = document.getElementById("isbnInput");
-
-        if (regex.test(isbnInput.value)) {
-          console.log("Valid isbn:", isbn.value);
-
-          isbn.classList.remove(".invalid-input");
-          document.getElementById("submitButton").disabled = "";
-          return;
-        } else {
-          console.log("Invalid isbn:", isbn.value);
-          isbn.classList.toggle(".invalid-input");
-
-          // make submitButton unclickable
-          document.getElementById("submitButton").disabled = "true";
-          // show tooltip to ask user to input valid isbn
-          return;
-        }
-      }, 500);
+      let timeout = null;
+      els.checkInput(timeout);
     });
     isbnGroup.appendChild(isbnLabel);
     isbnGroup.appendChild(isbnInput);
@@ -719,16 +650,25 @@
   });
 
   /**
+   * hides the form, shows the add button
+   */
+  const hideBookForm = () => {
+      FORMNODE.style.display = "none";
+      ADDBUTTON.style.display = "";
+  }
+  
+  /**
+   * shows the form, hides the add button
+   */
+  const showBookForm = () => {
+      FORMNODE.style.display = "";
+      ADDBUTTON.style.display = "none";
+  }
+
+  /**
    * Handles pressing the submit button in the add books form
    */
   FORMNODE.addEventListener("submit", (event) => {
-    // Prevent form from submitting to the server
-    event.preventDefault();
-
-    // first, hide the form node and redisplay the add book button
-    FORMNODE.style.display = "none";
-    ADDBUTTON.style.display = "";
-
     // extract data from inputs
     const data = {
       title: document.getElementById("titleInput").value,
@@ -736,17 +676,7 @@
       isbn: document.getElementById("isbnInput").value,
     };
 
-    // POST json data using a new XMLHttpRequest object
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", POSTBOOK);
-    xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
-    xhr.send(JSON.stringify(data));
-    xhr.onload = function () {
-      // show the result
-      console.log(`Done, got ${xhr.response.length} bytes`); // response is the server response
-      console.log(xhr.response);
-      window.location.href = DOMAIN + "dashboard";
-    };
+    els.submitBook(event, hideBookForm, data, POSTBOOK);    
   });
 
   /**

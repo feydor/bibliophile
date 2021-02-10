@@ -26,6 +26,9 @@ router.get("/", async (req, res) => {
 
   let books = [];
   books = await booksRouter.getUserBooks(req.user.profile.login);
+  if (books.length < 1) {
+    return res.send({ status: 406, statusTxt: "User has no books."});
+  }
   // console.log("GET /books: ", books);
 
   let subjects = books.map((book) => {

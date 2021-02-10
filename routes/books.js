@@ -8,6 +8,7 @@ const { check, body, validationResult } = require('express-validator');
 
 // import custom db module
 const db = require("../db");
+const DEFAULT_BOOK_COVER = "https://2.bp.blogspot.com/-MEkIz1Bld0c/T_4oRfvREPI/AAAAAAAAA8k/wZHwb6kUPlw/s1600/blank+book+cover.jpg";
 
 // Ideas for possible middlewares
 // 1. Check for OpenLibrary API book and pass it down as Book
@@ -54,6 +55,7 @@ const getUserBooks = async (username) => {
       publishdate: row.publish_date,
       isbn: row.isbn,
       subject: row.subject,
+      olid: row.olid,
       coverurl: row.coverurl,
     };
   });
@@ -90,7 +92,6 @@ router.post("/update/:olid", [
     isbn: req.body.isbn
   };
   console.log(book);
-  // sanitize
   
   // update db
   res.send({ status: 200, statusTxt: "OK"});
@@ -98,6 +99,30 @@ router.post("/update/:olid", [
    // res.send({ status: 500, statusTxt: "Update failed." });
 
 });
+
+
+// DELETE endpoints
+////////////////////////////
+
+/**
+ * DELETE /books/olid
+ */
+router.delete("/:olid", [check("olid").isAlphanumeric().matches(/OL/i)], async (req, res) => {
+  if (!req.userid) {
+    throw new Error("updateUserid middleware is not running");
+  }
+
+  const olid = req.params.olid;
+  console.log(olid);
+
+  // delete from db
+  let deleted = await deleteBook(olid);
+
+  return deleted ? res.send({ status: 200, statusTxt: "OK" }) 
+    : res.send({ status: 500, statusTxt: "FAILED"}); 
+
+});
+
 
 // POST endpoints
 //////////////////////
@@ -281,6 +306,8 @@ const parseApiBookIsbn = (book, apibook) => {
   // If it exists, add coverurl from OL api
   if (apibook[`ISBN:${book.isbn}`]["cover"]) {
     book.coverurl = apibook[`ISBN:${book.isbn}`]["cover"]["medium"];
+  } else {
+    book.coverurl = DEFAULT_BOOK_COVER;
   }
 
   // If it exists, add subject, publisher, etc
@@ -297,7 +324,7 @@ const parseApiBookIsbn = (book, apibook) => {
 
   // If it exists, add olid from OL api
   if (apibook[`ISBN:${book.isbn}`]["identifiers"]["openlibrary"]) {
-    book.olid = apibook[`ISBN:${book.isbn}`]["identifiers"]["openlibrary"];
+    book.olid = apibook[`ISBN:${book.isbn}`]["identifiers"]["openlibrary"][0];
   }
 };
 
@@ -470,7 +497,7 @@ const updateBook = async (olid, book) => {
     ]
   );
 
-  return rows && row.affectedRows ? true : false;
+  return rows && rows.affectedRows ? true : false;
 };
 
 // inserts an entry into library.library containing a userid paired with a bookid
@@ -479,6 +506,20 @@ const updateLibrary = async (userid, bookid) => {
     `INSERT INTO library (userid, bookid)
      VALUE(?, ?)`,
     [userid, bookid]
+  );
+
+  return rows && rows.affectedRows > 0 ? true : false;
+};
+
+/**
+ * delete's the rows (books) in library.books where olid matches
+ * @param {String} olid
+ * @return {boolean} true for success, false for failure
+ */
+const deleteBook = async (olid) => {
+  const [rows] = await db.pool.execute(
+    `DELETE FROM books WHERE books.olid = ?`,
+    [ olid ]
   );
 
   return rows && rows.affectedRows > 0 ? true : false;

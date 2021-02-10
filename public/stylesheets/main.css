@@ -1,4 +1,3 @@
-@import './components/crud-table.css';
 :root {
   scroll-behavior: smooth;
   font-family: "Poppins", sans-serif;
@@ -542,8 +541,19 @@ section {
   justify-content: center;
 }
 
+/* shrinks covers in .extra-info-row */
+img {
+  object-fit: contain;
+  max-width: 200px;
+  padding: 0;
+}
+
 .extra-info-row table {
   margin: 10px;
+}
+
+.extra-info-row button {
+  max-height: 80px;
 }
 
 /* shrinks covers in reccs tab */
