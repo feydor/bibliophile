@@ -8,14 +8,11 @@
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
     "format": "npx prettier --write .",
-    "test": "jest --testTimeout=10000",
-    "babel": "npx babel public/javascripts/list_view.js --out-file public/javascripts/jsx/list_view.js --presets react-app/prod"
+    "test": "jest --testTimeout=10000"
   },
   "dependencies": {
     "@okta/oidc-middleware": "^4.0.3",
     "@okta/okta-sdk-nodejs": "^4.4.0",
-    "babel-cli": "^6.26.0",
-    "babel-preset-react-app": "^3.1.2",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^8.2.0",
