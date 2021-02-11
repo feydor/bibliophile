@@ -4,7 +4,7 @@ import * as els from "./eventlisteners.js";
 
 (function () {
   // constants
-  const DOMAIN = "http://localhost:5000/"
+  const DOMAIN = "https://bibliophile-library.herokuapp.com/"
   const GETBOOKS = DOMAIN + "books";
   const POSTBOOK = DOMAIN + "books";
   const DELETEURL = DOMAIN + "books";
