@@ -233,7 +233,7 @@ import * as els from "./eventlisteners.js";
       let title = document.createElement("h3");
       title.classList.add("mb-1");
       let titleLink = document.createElement("a");
-      titleLink.setAttribute("href", `http://openlibrary.org${recc.key}`);
+      titleLink.setAttribute("href", `http://openlibrary.org/books/${recc.key}`);
       titleLink.textContent = recc.title;
       title.appendChild(titleLink);
       detailsDiv.appendChild(title);
@@ -477,8 +477,8 @@ import * as els from "./eventlisteners.js";
                   <td>${d.publishdate ? d.publishdate : ""}</td>
                 </tr>
                 <tr>
-                  <td>ISBN:</td>
-                  <td>${d.isbn ? d.isbn : ""}</td>
+                  <td>OLID:</td>
+                  <td>${d.olid ? d.olid : ""}</td>
                 </tr>
               </table>
           </div>`;

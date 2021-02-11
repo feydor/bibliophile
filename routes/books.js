@@ -54,7 +54,6 @@ const getUserBooks = async (username) => {
       author: row.author,
       publisher: row.publisher,
       publishdate: row.publish_date,
-      isbn: row.isbn,
       subject: row.subject,
       olid: row.olid,
       coverurl: row.coverurl,
@@ -76,7 +75,6 @@ router.post(
     body("author").isAlphanumeric().not().isEmpty().trim().escape(),
     body("publisher").isAlphanumeric().not().isEmpty().trim().escape(),
     body("publishdate").isNumeric().not().isEmpty().trim().escape(),
-    body("isbn").isISBN().trim().escape(),
   ],
   (req, res) => {
     if (!req.userid) {
@@ -92,7 +90,6 @@ router.post(
       subject: req.body.subject,
       publisher: req.body.publisher,
       publishdate: req.body.publishdate,
-      isbn: req.body.isbn,
     };
     console.log(book);
 
@@ -154,6 +151,7 @@ router.delete(
  *   }
  *
  *   Finally an SQL entry is made
+ *   NOTE: isbn is not saved in db, it is only used to identify the book
  */
 router.post("/", async function (req, res) {
   if (!req.user) {
@@ -258,9 +256,15 @@ router.post("/:olid", async (req, res) => {
  * querys an api
  * @param {String} url - the api's url
  * @return {Array}
+ * @throws throws an error if url is invalid
  */
 const fetchApi = async (url, options = {}) => {
-  const response = await fetch(url, options);
+  var response;
+  try {
+    response = await fetch(url, options);
+  } catch (error) {
+    throw new Error(error);
+  }
 
   if (!response.ok) {
     const message = `An error has occured: ${response.status}`;
@@ -316,10 +320,22 @@ const parseApiBookIsbn = (book, apibook) => {
   }
 
   // If it exists, add subject, publisher, etc
-  // (subjects and publishers are arrays in api data, use the first one)
+  // (subjects and publishers are arrays in api data)
   if (apibook[`ISBN:${book.isbn}`]["subjects"]) {
-    book.subject = apibook[`ISBN:${book.isbn}`]["subjects"][0]["name"];
+    for (const subject of apibook[`ISBN:${book.isbn}`]["subjects"]) {
+      let hasBooks = subjectHasWorks(subject["name"]);
+      if (hasBooks) {
+        book.subject = subject["name"];
+        break;
+      }
+    }
+    
+    if (!book.subject) {
+      book.subject = "Fiction";
+    }
   }
+
+  // use the first publisher
   if (apibook[`ISBN:${book.isbn}`]["publishers"]) {
     book.publisher = apibook[`ISBN:${book.isbn}`]["publishers"][0]["name"];
   }
@@ -338,7 +354,7 @@ const parseApiBookIsbn = (book, apibook) => {
  * @param {Object} book - a pre-initialized book with missing fields
  * @param {Object} apibook - an OpenLibrary book object described by https://openlibrary.org/dev/docs/api/books
  */
-const parseApiBookOlid = (book, apibook, olid) => {
+const parseApiBookOlid = async (book, apibook, olid) => {
   book.olid = olid;
 
   // if title and/author were not provided in body, use OL apiBook
@@ -365,7 +381,17 @@ const parseApiBookOlid = (book, apibook, olid) => {
   // If it exists, add subject, publisher, etc
   // (subjects and publishers are arrays in api data, use the first one)
   if (apibook[`OLID:${olid}`]["subjects"]) {
-    book.subject = apibook[`OLID:${olid}`]["subjects"][0]["name"];
+    for (const subject of apibook[`OLID:${olid}`]["subjects"]) {
+      let hasBooks = await subjectHasWorks(subject["name"]);
+      if (hasBooks) {
+        book.subject = subject["name"];
+        break;
+      }
+    }
+    
+    if (!book.subject) {
+      book.subject = "Fiction";
+    }
   }
   if (apibook[`OLID:${olid}`]["publishers"]) {
     book.publisher = apibook[`OLID:${olid}`]["publishers"][0]["name"];
@@ -373,19 +399,24 @@ const parseApiBookOlid = (book, apibook, olid) => {
   if (apibook[`OLID:${olid}`]["publish_date"]) {
     book.publish_date = apibook[`OLID:${olid}`]["publish_date"];
   }
+};
 
-  // check for isbn_10 and isbn_13, isbn_13 takes precedence
-  if (apibook[`OLID:${olid}`]["identifiers"]["isbn_10"]) {
-    book.isbn = apibook[`OLID:${olid}`]["identifiers"]["isbn_10"];
-  }
-  if (apibook[`OLID:${olid}`]["identifiers"]["isbn_13"]) {
-    book.isbn = apibook[`OLID:${olid}`]["identifiers"]["isbn_13"];
-  }
+/**
+ * checks OL /subject api for number of works
+ * @param {string} subject
+ * @returns {boolean} if numWorks > 0 it returns true otherwise false
+ */
+const subjectHasWorks = (subject) => {
+  const url = `https://openlibrary.org/subjects/${subject}.json?limit=1`;
 
-  // remove multiple isbns
-  if (Array.isArray(book.isbn)) {
-    book.isbn = book.isbn[0];
-  }
+  fetchApi(url)
+    .then(subjectJson => {
+      return subjectJson["work_count"] > 0; 
+    })
+    .catch(error => {
+      // ignore fetch errors here, invalid url returns false
+      return false;
+    });
 };
 
 /**
@@ -419,7 +450,7 @@ const storeBook = async (book, userid) => {
       console.error("Failed to update library.");
     }
   } else {
-    bookid = await getBookId(book.title);
+    bookid = await getBookId(book.olid);
     // console.log("bookid: ", bookid);
 
     let updatedLibrary = await updateLibrary(userid, bookid);
@@ -448,7 +479,7 @@ const bookExists = async (olid) => {
 };
 
 /**
- * searches library.books for matching isbn and returns the matching book's id
+ * searches library.books for matching olid and returns the matching book's id
  * @param {String} olid
  * @return {String} bookid - the id for the matching library.book
  * @return {bool} if the book doesn't exist it returns 0
@@ -466,13 +497,12 @@ const getBookId = async (olid) => {
 // inserts the book into library.books
 const insertBook = async (book) => {
   const [rows] = await db.pool.execute(
-    `INSERT INTO books(title, author, olid, isbn, publisher, publish_date,
-     subject, coverurl) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO books(title, author, olid, publisher, publish_date,
+     subject, coverurl) VALUES(?, ?, ?, ?, ?, ?, ?)`,
     [
       book.title,
       book.author,
       book.olid,
-      book.isbn,
       book.publisher,
       book.publish_date,
       book.subject,
@@ -495,7 +525,7 @@ const updateBook = async (olid, book) => {
     `UPDATE books
      SET 
         title = ?, author = ?, subject = ?,
-        publisher = ?, publish_date = ?, isbn = ?
+        publisher = ?, publish_date = ?
      WHERE 
         olid = ?
      `,
@@ -505,7 +535,6 @@ const updateBook = async (olid, book) => {
       book.subject,
       book.publisher,
       book.publish_date,
-      book.isbn,
       olid,
     ]
   );

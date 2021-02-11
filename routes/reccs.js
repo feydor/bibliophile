@@ -29,9 +29,10 @@ router.get("/", async (req, res) => {
   if (books.length < 1) {
     return res.send({ status: 406, statusTxt: "User has no books." });
   }
-  // console.log("GET /books: ", books);
+  console.log("GET /books: ", books);
 
-  let subjects = books.map((book) => { book.subject });
+  let subjects = books.map((book) => { return book.subject });
+  console.log(subjects);
 
   // TODO: for simplicity, the first !null subject is used
   let subjectChosen = subjects.find((subject) => subject !== null);
@@ -41,11 +42,13 @@ router.get("/", async (req, res) => {
 
   // lowercase the whole string and replace spaces with dashes
   subjectChosen = subjectChosen.toLowerCase().replace(/\s/g, '-');
+  console.log(subjectChosen)
 
   // example API call: https://openlibrary.org/subjects/love.json
   let apiResponse = {};
   const limit = 10;
   let url = `https://openlibrary.org/subjects/${subjectChosen}.json?limit=${limit}`;
+  console.log(url);
 
   try {
     fetchApi(url, (error, result) => {
@@ -136,17 +139,6 @@ const fetchApi = (url, callback) => {
       return callback(error, null);
     });
 };
-
-/**
- * an Array.prototype.filter analogue for Object
- * @param {Object} obj
- * @param {Function} predicate - the inclusion condition
- * @return {Array} res
- */
-Object.filter = (obj, predicate) =>
-  Object.keys(obj)
-    .filter((key) => predicate(obj[key]))
-    .reduce((res, key) => ((res[key] = obj[key]), res), {});
 
 /**
  * parses an OpenLibrary work as defined by https://openlibrary.org/dev/docs/api/subjects
