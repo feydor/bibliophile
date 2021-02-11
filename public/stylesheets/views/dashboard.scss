@@ -87,9 +87,34 @@ img {
 /* shrinks covers in reccs tab */
 .reccs-cover {
   margin: 3px 10px 3px 3px;
-  object-fit: contain;
-  max-width: 200px;
-  max-height: 250px;
+}
+
+/* remove unneccesary padding */
+.list-group-item, .col-12 {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* fix rendering for reccs tab on mobile */
+@media (max-width: 768px) {
+  #reccs-container h3 {
+    font-size: 1.2rem;
+  }
+  #reccs-container h4 {
+    font-size: 1.0rem;
+  }
+  #reccs-container ul {
+    font-size: 0.8rem;
+  }
+
+  .reccs-btn-group a {
+    font-size: 0.8rem;
+  }
+
+  .col-4 {
+    padding-right: 5px;
+    padding-left: 5px;
+  }
 }
 
 .dark-mode {

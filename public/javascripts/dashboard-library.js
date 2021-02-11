@@ -4,7 +4,8 @@ import * as els from "./eventlisteners.js";
 
 (function () {
   // constants
-  const DOMAIN = "https://bibliophile-library.herokuapp.com/"
+  // const DOMAIN = "https://bibliophile-library.herokuapp.com/"
+  const DOMAIN = "http://localhost:5000/"
   const GETBOOKS = DOMAIN + "books";
   const POSTBOOK = DOMAIN + "books";
   const DELETEURL = DOMAIN + "books";
@@ -219,16 +220,18 @@ import * as els from "./eventlisteners.js";
       li.classList.add("list-group-item");
 
       let div = document.createElement("div");
-      div.classList.add("d-flex", "justify-content-around");
+      div.classList.add("d-flex", "justify-content-around", "col-12");
 
       let cover = document.createElement("img");
-      cover.classList.add("reccs-cover");
+      cover.classList.add("reccs-cover", "img-fluid");
       cover.setAttribute("src", recc.coverurl);
-      cover.setAttribute("width", "100%");
-      div.appendChild(cover);
+      let coverDiv = document.createElement("div");
+      coverDiv.classList.add("col-4");
+      coverDiv.appendChild(cover);
+      div.appendChild(coverDiv);
 
       let detailsDiv = document.createElement("div");
-      detailsDiv.classList.add("d-flex", "flex-column");
+      detailsDiv.classList.add("reccs-details", "d-flex", "flex-column", "col-5");
 
       let title = document.createElement("h3");
       title.classList.add("mb-1");
@@ -268,7 +271,7 @@ import * as els from "./eventlisteners.js";
       div.appendChild(detailsDiv);
 
       let btnDiv = document.createElement("div");
-      btnDiv.classList.add("d-flex", "flex-column");
+      btnDiv.classList.add("reccs-btn-group", "d-flex", "flex-column", "col-3");
 
       let infoBtn = document.createElement("a");
       infoBtn.classList.add("btn", "btn-primary", "mb-1");
