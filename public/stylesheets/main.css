@@ -215,7 +215,7 @@ section {
 # Header
 --------------------------------------------------------------*/
 .header {
-  transition: all 0.1s;
+  transition: all 100ms;
   z-index: 997;
   padding: 20px 0;
 }
@@ -592,6 +592,11 @@ img {
   .col-4 {
     padding-right: 5px;
     padding-left: 5px;
+  }
+
+  #booklist-container td {
+    font-size: 1rem;
+    padding: 0;
   }
 }
 .dark-mode {

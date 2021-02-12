@@ -59,6 +59,7 @@
   width: 100%;
 }
 
+
 .extra-info-btn {
   margin-bottom: 0.5rem;
 }
@@ -114,6 +115,11 @@ img {
   .col-4 {
     padding-right: 5px;
     padding-left: 5px;
+  }
+
+  #booklist-container td{
+    font-size: 1.0rem; 
+    padding: 0;
   }
 }
 

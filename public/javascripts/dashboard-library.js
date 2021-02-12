@@ -277,13 +277,13 @@ import * as els from "./eventlisteners.js";
       infoBtn.classList.add("btn", "btn-primary", "mb-1");
       infoBtn.setAttribute("role", "button");
       infoBtn.setAttribute("href", `https://openlibrary.org${recc.works_key}`);
-      infoBtn.textContent = "Info/Buy";
+      infoBtn.textContent = "Info";
       btnDiv.appendChild(infoBtn);
 
       let form = document.createElement("form");
 
       let addBtn = document.createElement("a");
-      addBtn.classList.add("btn", "btn-light");
+      addBtn.classList.add("btn", "btn-secondary");
       addBtn.setAttribute("role", "button");
       addBtn.setAttribute("href", "#");
       addBtn.textContent = "Add To List";
@@ -402,7 +402,6 @@ import * as els from "./eventlisteners.js";
         if (newRow.child.isShown()) {
           // This row is already open - close it
           newRow.child.hide();
-          editButtonRow.classList.toggle("shown");
           editButtonRow.classList.remove("shown");
           // show plus icon
           editButton.innerHTML = "";
@@ -433,7 +432,7 @@ import * as els from "./eventlisteners.js";
           deleteButton.addEventListener("click", () => {
             els.deleteRow(currentOlid, DELETEURL);
           });
-          document.querySelector(".extra-info-row").appendChild(deleteButton);
+          document.getElementById(currentOlid).appendChild(deleteButton);
         }
       });
       td.appendChild(editButton);
@@ -484,6 +483,8 @@ import * as els from "./eventlisteners.js";
                   <td>${d.olid ? d.olid : ""}</td>
                 </tr>
               </table>
+              <div id=${d.olid} class="append-delete-button">
+              </div>
           </div>`;
   }
 

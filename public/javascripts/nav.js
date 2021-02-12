@@ -10,7 +10,7 @@
   let selectHeader = document.getElementById("header");
   if (selectHeader) {
     window.addEventListener("scroll", () => {
-      if (window.pageYOffset > 50) {
+      if (window.pageYOffset > 20) {
         selectHeader.classList.add("header-scrolled");
       } else {
         selectHeader.classList.remove("header-scrolled");
