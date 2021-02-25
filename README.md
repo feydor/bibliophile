@@ -1,4 +1,4 @@
-![](./[public/images/logo.png)
+![](./public/images/logo.png)
 
 <p align="center">
   <a href="" target="_blank">
@@ -29,7 +29,7 @@ An Express.js app (MySQL, Vanilla JS, Express.js) to keep track of personal libr
 # Live Version
 [(Back to top)](#table-of-contents)
 
-![Heroku](http://heroku-badge.herokuapp.com/?app=bibliophile-library&style=flat&svg=1&root=index.html)
+![Heroku](https://heroku-badges.herokuapp.com/?app=bibliophile-library&root=index.html)
 [Go to live version.](https://bibliophile-library.herokuapp.com/)
 
 # Screenshots
@@ -54,7 +54,7 @@ After installing the dependencies, run the project by executing:
 npm start
 ```
 By default a development server will start at ``http://localhost:3000``. 
-To develop, set the appropriate environment variables in .env:
+To develop, set the appropriate environment variables in .env and change the DOMAIN constant in public/javascripts/dashboard-library.js:
 
 ```sh
 DOMAIN='http://localhost:3000/'
