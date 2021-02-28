@@ -29,8 +29,14 @@ An Express.js app (MySQL, Vanilla JS, Express.js) to keep track of personal libr
 # Live Version
 [(Back to top)](#table-of-contents)
 
-![Heroku](https://heroku-badges.herokuapp.com/?app=bibliophile-library&root=index.html)
+![Heroku](https://pyheroku-badge.herokuapp.com/?app=bibliophile-library)
 [Go to live version.](https://bibliophile-library.herokuapp.com/)
+
+Use the following dummy account to login:
+```sh
+username=atrab@energyce.cyou
+password=Y5wEQuG8TFb9yUt
+```
 
 # Screenshots
 [(Back to top)](#table-of-contents)

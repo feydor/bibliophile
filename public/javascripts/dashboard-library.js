@@ -58,7 +58,7 @@ import * as els from "./eventlisteners.js";
 
     // get the id of the currently active tab
     const currentTabId = document.querySelector("#libraryTabNav .active").id;
-    console.log(currentTabId);
+    // console.log(currentTabId);
     fetchSelectedResource(currentTabId);
 
     // assign a click listener to each tab, to run fetchSelectedResource
