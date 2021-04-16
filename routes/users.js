@@ -49,7 +49,7 @@ const insertNewUser = async (profile) => {
     rows,
   ] = await db.pool.execute(
     `INSERT INTO users (username, first_name, last_name, email) VALUE (?, ?, ?, ?);`,
-    [profile.username, profile.given_name, profile.full_name, profile.email]
+    [profile.name, profile.given_name, profile.full_name, profile.email]
   );
 
   return rows && rows.length > 0

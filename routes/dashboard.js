@@ -3,7 +3,7 @@ const router = express.Router();
 
 // Display the dashboard page
 router.get("/", (req, res) => {
-  res.render("dashboard");
+  res.render("dashboard", { profile: req.oidc.user });
 });
 
 module.exports = router;

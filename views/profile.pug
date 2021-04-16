@@ -2,18 +2,18 @@ extends layout
 
 block content
   h1.h3(style="margin-top: 15vh") Profile
-    p.mb-4= 'Hi ' + user.profile.firstName + '!'
+    p.mb-4= 'Hi ' + user.profile.nickname + '!'
 
   div.card.shadow.mb-5.p-4
     div.row.g-0
       div.col-md-4
-        img.img-fluid(src="images/user-profile.svg" alt="profile")
+        img.img-fluid(src=profile.picture alt="profile")
       div.col-md-8
         div.card-body
-          h4.card-title= user.profile.login
-          p.card-text= 'First name: ' + user.profile.firstName
-          p.card-text= 'Last name: ' + user.profile.lastName
-          p.card-text= 'Email: ' + user.profile.email
+          h4.card-title= profile.name
+          p.card-text= 'First name: ' + user.profile.given_name
+          p.card-text= 'Last name: ' + user.profile.family_name
+          p.card-text= 'Email: ' + profile.email
     
 
                                     

@@ -17,11 +17,11 @@ block header
             a.nav-link(href="/dashboard") Library
           li.dropdown.mr-4
             a.nav-link(href="/profile")
-              if user
-                span= user.profile.login
-                img.img-fluid.profile-img(src="images/user-profile.svg")
+              if profile
+                span= profile.name
+                img.img-fluid.profile-img(src=profile.picture)
               else
-                span= USERNAME
+                span= "USERNAME"
 
         i.bi.bi-list.mobile-nav-toggle
 
