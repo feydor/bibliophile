@@ -3,23 +3,24 @@ const express = require("express");
 const path = require("path");
 const logger = require("morgan");
 const session = require("express-session");
+const { auth, requiresAuth } = require('express-openid-connect');
 
 // import other custom modules
-const auth = require("./auth");
+const auth0 = require("./auth");
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
 // import routes
-var publicRouter = require("./routes/public");
-var dashboardRouter = require("./routes/dashboard");
-var usersRouter = require("./routes/users");
-var profileRouter = require("./routes/profile");
-var reccs = require("./routes/reccs");
-var books = require("./routes/books");
+let publicRouter = require("./routes/public");
+let dashboardRouter = require("./routes/dashboard");
+let usersRouter = require("./routes/users");
+let profileRouter = require("./routes/profile");
+let reccs = require("./routes/reccs");
+let books = require("./routes/books");
 
-var app = express();
+let app = express();
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -38,15 +39,15 @@ app.use(
   })
 );
 
-app.use(auth.oidc.router);
-
 // enable routes
-app.use("/", auth.addUser, publicRouter);
-app.use("/dashboard", auth.addUser, auth.loginRequired, dashboardRouter);
-app.use("/profile", auth.addUser, auth.loginRequired, profileRouter);
-app.use("/users", auth.addUser, usersRouter);
-app.use("/books", auth.addUser, auth.updateUserId, books.router);
-app.use("/reccs", auth.addUser, reccs.router);
+app.use(auth(auth0.config));
+
+app.use("/", publicRouter);
+app.use("/profile", requiresAuth, profileRouter);
+app.use("/dashboard", requiresAuth, dashboardRouter);
+app.use("/users", requiresAuth, usersRouter);
+app.use("/books", requiresAuth, books.router);
+app.use("/reccs", requiresAuth, reccs.router);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

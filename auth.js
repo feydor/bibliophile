@@ -1,11 +1,23 @@
+/*
 var okta = require("@okta/okta-sdk-nodejs");
 var ExpressOIDC = require("@okta/oidc-middleware").ExpressOIDC;
+*/
 const db = require("./db"); // async function, returns Promise
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
+const config = {
+  authRequired: false, // activate on route-by-route basis
+  auth0Logout: true,
+  secret: process.env.SECRET,
+  baseURL: process.env.BASE_URL,
+  clientID: process.env.AUTH0_CLIENT_ID,
+  issuerBaseURL: process.env.AUTH0_DOMAIN,
+};
+
+/*
 var oktaClient = new okta.Client({
   orgUrl: process.env.OKTA_CLIENT_ORGURL,
   token: process.env.OKTA_CLIENT_TOKEN,
@@ -82,5 +94,6 @@ let loginRequired = (req, res, next) => {
 
   next();
 };
+*/
 
-module.exports = { oidc, oktaClient, addUser, updateUserId, loginRequired };
+module.exports = { config };

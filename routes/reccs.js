@@ -20,12 +20,12 @@ const booksRouter = require("./books");
  * Determines reccs by seeking new books with matching subjects
  */
 router.get("/", async (req, res) => {
-  if (!req.user) {
+  if (!req.oidc.user) {
     throw console.error("addUser middleware not running.");
   }
 
   let books = [];
-  books = await booksRouter.getUserBooks(req.user.profile.login);
+  books = await booksRouter.getUserBooks(req.oidc.user.user_metadata.dbid);
   if (books.length < 1) {
     return res.send({ status: 406, statusTxt: "User has no books." });
   }

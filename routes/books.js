@@ -23,12 +23,12 @@ const DEFAULT_BOOK_COVER =
  * Assumes auth/addUser middleware is running
  */
 router.get("/", async (req, res) => {
-  if (!req.user) {
+  if (!req.oidc.user) {
     throw console.error("addUser middleware not running.");
   }
 
   let books = [];
-  books = await getUserBooks(req.user.profile.login);
+    books = await getUserBooks(req.oidc.user.email);
   //console.log("GET /books: ", books);
 
   return res.send({
@@ -77,7 +77,7 @@ router.post(
     body("publishdate").isNumeric().not().isEmpty().trim().escape(),
   ],
   (req, res) => {
-    if (!req.userid) {
+    if (!req.oidc.user.user_metadata.dbid) {
       throw new Error("updateUserid middleware not running");
     }
 
@@ -110,7 +110,7 @@ router.delete(
   "/:olid",
   [check("olid").isAlphanumeric().matches(/OL/i)],
   async (req, res) => {
-    if (!req.userid) {
+    if (!req.oidc.user.user_metadata.dbid) {
       throw new Error("updateUserid middleware is not running");
     }
 
@@ -154,7 +154,7 @@ router.delete(
  *   NOTE: isbn is not saved in db, it is only used to identify the book
  */
 router.post("/", async function (req, res) {
-  if (!req.user) {
+  if (!req.oidc.user) {
     return new Error("addUser middleware not running");
   }
 
@@ -201,7 +201,7 @@ router.post("/", async function (req, res) {
   parseApiBookIsbn(book, apibooks);
 
   // store in db
-  await storeBook(book, req.userid);
+  await storeBook(book, req.oidc.user.user_metadata.dbid);  
 
   return res.send({
     status: 200,
@@ -215,7 +215,7 @@ router.post("/", async function (req, res) {
  * @example /books/OL151515W
  */
 router.post("/:olid", async (req, res) => {
-  if (!req.userid) {
+  if (!req.oidc.user.user_metadata.dbid) { 
     throw console.error("updateUserid middleware not running");
   }
 
@@ -244,7 +244,7 @@ router.post("/:olid", async (req, res) => {
   console.log(book);
 
   // store in db
-  await storeBook(book, req.userid);
+  await storeBook(book, req.oidc.user.user_metadata.dbid);
 
   return res.send({ status: 200, statusTxt: "OK", olid: olid });
 });

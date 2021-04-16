@@ -36,6 +36,9 @@ Use the following dummy account to login:
 ```sh
 username=atrab@energyce.cyou
 password=Y5wEQuG8TFb9yUt
+
+username=yokusin@jimong.com
+password=adminpassword
 ```
 
 # Screenshots
