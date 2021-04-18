@@ -1,33 +1,23 @@
 const express = require("express");
-const router = express.Router();
+// const router = express.Router();
 const db = require("../db");
-
-// Log a user out locally
-/*
-router.get("/logout", (req, res) => {
-  req.logout();
-  res.redirect("/");
-});
-*/
 
 // psuedo-endpoint to check sql db for pre-existing user, or to add one
 // redirect to '/dashboard' afterwards
-router.get("/verify-user", (req, res) => {
+const checkForUserInDb = (req, res, next) => {
   if (!req.oidc.user) {
     throw console.error("User not logged in to Auth0.");
   }
-
-  // query db for matching user
-  // apply matching user id to req.oidc.user.user_metadata.uid
-  // redirect to /dashboard
+  
   if (isExistingUser(req.oidc.user.email)) {
-    res.redirect("/dashboard");
+    next();
   } else {
+    // insert new user_metadata
     let newUserId = insertNewUser(req.oidc.user);
     req.oidc.user.user_metadata.dbid = newUserId;
-    res.redirect("/dashboard");
+    next();
   }
-});
+};
 
 // query functions
 const isExistingUser = async (email) => {
@@ -57,4 +47,4 @@ const insertNewUser = async (profile) => {
     : console.error("insertNewUser failed.");
 };
 
-module.exports = router;
+module.exports = { checkForUserInDb };

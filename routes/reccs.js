@@ -25,6 +25,8 @@ router.get("/", async (req, res) => {
   }
 
   let books = [];
+  console.log(req.oidc.user);
+  console.log(req.oidc.user.user_metadata);
   books = await booksRouter.getUserBooks(req.oidc.user.user_metadata.dbid);
   if (books.length < 1) {
     return res.send({ status: 406, statusTxt: "User has no books." });

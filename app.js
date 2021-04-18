@@ -15,7 +15,7 @@ if (process.env.NODE_ENV !== "production") {
 // import routes
 let publicRouter = require("./routes/public");
 let dashboardRouter = require("./routes/dashboard");
-let usersRouter = require("./routes/users");
+let users = require("./routes/users");
 let profileRouter = require("./routes/profile");
 let reccs = require("./routes/reccs");
 let books = require("./routes/books");
@@ -46,8 +46,8 @@ app.use("/", publicRouter);
 app.use("/user_profile", requiresAuth(), profileRouter);
 app.use("/dashboard", requiresAuth(), dashboardRouter);
 // app.use("/users", requiresAuth, usersRouter);
-app.use("/books", requiresAuth(), books.router);
-app.use("/reccs", requiresAuth(), reccs.router);
+app.use("/books", requiresAuth(), users.checkForUserInDb, books.router);
+app.use("/reccs", requiresAuth(), users.checkForUserInDb, reccs.router);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
