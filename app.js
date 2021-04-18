@@ -43,11 +43,11 @@ app.use(
 app.use(auth(auth0.config));
 
 app.use("/", publicRouter);
-app.use("/profile", requiresAuth, profileRouter);
-app.use("/dashboard", requiresAuth, dashboardRouter);
-app.use("/users", requiresAuth, usersRouter);
-app.use("/books", requiresAuth, books.router);
-app.use("/reccs", requiresAuth, reccs.router);
+app.use("/user_profile", requiresAuth(), profileRouter);
+app.use("/dashboard", requiresAuth(), dashboardRouter);
+// app.use("/users", requiresAuth, usersRouter);
+app.use("/books", requiresAuth(), books.router);
+app.use("/reccs", requiresAuth(), reccs.router);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

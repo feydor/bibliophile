@@ -12,7 +12,7 @@ const config = {
   authRequired: false, // activate on route-by-route basis
   auth0Logout: true,
   secret: process.env.SECRET,
-  baseURL: process.env.BASE_URL,
+  baseURL: process.env.BASEURL,
   clientID: process.env.AUTH0_CLIENT_ID,
   issuerBaseURL: process.env.AUTH0_DOMAIN,
 };

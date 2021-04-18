@@ -4,8 +4,8 @@ import * as els from "./eventlisteners.js";
 
 (function () {
   // constants
-  const DOMAIN = "https://bibliophile-library.herokuapp.com/"
-  // const DOMAIN = "http://localhost:3000/"
+  // const DOMAIN = "https://bibliophile-library.herokuapp.com/"
+  const DOMAIN = "http://localhost:3000/"
   const GETBOOKS = DOMAIN + "books";
   const POSTBOOK = DOMAIN + "books";
   const DELETEURL = DOMAIN + "books";

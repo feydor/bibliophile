@@ -1,0 +1,21 @@
+extends layout                                                                                               
+block content
+  h1.h3(style="margin-top: 15vh") Profile
+    p.mb-4= 'Hi ' + profile.nickname + '!'
+
+  div.card.shadow.mb-5.p-4
+    div.row.g-0
+      div.col-md-4
+        img.img-fluid(src=profile.picture alt="profile")
+      div.col-md-8
+        div.card-body
+          if profile
+            h4.card-title= profile.name
+            if profile.nickname
+              p.card-text= 'Nickname: ' + profile.nickname
+            if profile.given_name
+              p.card-text= 'First name: ' + profile.given_name
+            if profile.family_name
+              p.card-text= 'Last name: ' + profile.family_name
+            p.card-text= 'Email: ' + profile.email
+    

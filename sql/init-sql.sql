@@ -35,7 +35,7 @@ CREATE TABLE library.users (
 );
 
 INSERT INTO library.users (id, username, first_name, last_name, email)
-VALUE ('1000', 'atrab@energyce.cyou', 'Faker 2', 'BOTTOM_TEXT', 'atrab@energyce.cyou');
+VALUE ('1000', 'fritzwn@yandex.com', 'Fritz', 'Wilhelm', 'fritzwn@yandex.com');
 
 // sets up relationship between many users and many books
 CREATE TABLE library.library (
