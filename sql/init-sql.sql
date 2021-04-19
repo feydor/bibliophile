@@ -28,13 +28,15 @@ VALUES ('1000', 'Republic', 'Plato', 'Knickerbocker Classics', '2019', 'OL273402
 CREATE TABLE library.users (
     id INT AUTO_INCREMENT,
     username VARCHAR(255) NOT NULL,
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
+    nickname VARCHAR(255) NOT NULL,
+    picture VARCHAR(512) NOT NULL,
     email varchar(255) NOT NULL,
     PRIMARY KEY(id)
 );
 
-INSERT INTO library.users (id, username, first_name, last_name, email)
+INSERT INTO library.users (id, username, nickname, picture, email)
+VALUE ('1000', 'user@fake.com', 'user', 'notapicture', 'user@fake.com');
+
 VALUE ('1000', 'fritzwn@yandex.com', 'Fritz', 'Wilhelm', 'fritzwn@yandex.com');
 
 // sets up relationship between many users and many books

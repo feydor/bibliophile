@@ -1,12 +1,29 @@
-/*
-var okta = require("@okta/okta-sdk-nodejs");
-var ExpressOIDC = require("@okta/oidc-middleware").ExpressOIDC;
-*/
+/* auth.js - authorization functions using Auth0 */
+const passport = require('passport');
+const Auth0Strategy = require('passport-auth0');
 const db = require("./db"); // async function, returns Promise
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
+
+const strategy = new Auth0Strategy(
+  {
+    domain: process.env.AUTH0_DOMAIN,
+    clientID: process.env.AUTH0_CLIENT_ID,
+    clientSecret: process.env.AUTH0_CLIENT_SECRET,
+    callbackURL:
+      process.env.AUTH0_CALLBACK_URL || 'http://localhost:3000/callback'
+  },
+  function (accessToken, refreshToken, extraParams, profile, done) {
+    // accessToken is the token to call Auth0 API (not needed in the most cases)
+    // extraParams.id_token has the JSON Web Token
+    // profile has all the information from the user
+    return done(null, profile);
+  }
+);
+
+passport.use(strategy);
 
 const config = {
   authRequired: false, // activate on route-by-route basis
@@ -15,6 +32,12 @@ const config = {
   baseURL: process.env.BASEURL,
   clientID: process.env.AUTH0_CLIENT_ID,
   issuerBaseURL: process.env.AUTH0_DOMAIN,
+};
+
+const requiresAuth = (req, res, next) => {
+  if (req.user) { return next(); }
+  req.session.returnTo = req.originalUrl;
+  res.redirect('/login');
 };
 
 /*
@@ -96,4 +119,4 @@ let loginRequired = (req, res, next) => {
 };
 */
 
-module.exports = { config };
+module.exports = { config, passport, requiresAuth };

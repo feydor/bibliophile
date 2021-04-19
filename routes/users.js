@@ -4,17 +4,21 @@ const db = require("../db");
 
 // psuedo-endpoint to check sql db for pre-existing user, or to add one
 // redirect to '/dashboard' afterwards
-const checkForUserInDb = (req, res, next) => {
+const checkForUserInDb = async (req, res, next) => {
   if (!req.oidc.user) {
     throw console.error("User not logged in to Auth0.");
   }
-  
-  if (isExistingUser(req.oidc.user.email)) {
+
+  let dbid = await isExistingUser(req.oidc.user.email);
+
+  if (dbid !== 0) {
+    res.locals.dbid = dbid;
     next();
   } else {
     // insert new user_metadata
-    let newUserId = insertNewUser(req.oidc.user);
-    req.oidc.user.user_metadata.dbid = newUserId;
+    let newUserId = await insertNewUser(req.oidc.user);
+    res.locals.dbid = newUserId;
+    console.log("INSERTINGNEWUSER: ", res.locals);
     next();
   }
 };
@@ -26,7 +30,15 @@ const isExistingUser = async (email) => {
   ] = await db.pool.execute(`SELECT id FROM users WHERE users.email = ? `, [
     email,
   ]);
-  return rows.id ? true : false;
+
+  console.log(rows);
+  console.log(rows.length);
+
+  if (rows && rows.length) {
+    return rows.id;
+  } else {
+    return 0;
+  }
 };
 
 /*
@@ -38,12 +50,15 @@ const insertNewUser = async (profile) => {
   const [
     rows,
   ] = await db.pool.execute(
-    `INSERT INTO users (username, first_name, last_name, email) VALUE (?, ?, ?, ?);`,
-    [profile.name, profile.given_name, profile.full_name, profile.email]
+    `INSERT INTO users (username, nickname, picture, email) VALUE (?, ?, ?, ?);`,
+    [profile.name, profile.nickname, profile.picture, profile.email]
   );
+  
+  console.log(rows);
+  console.log(rows.insertId);
 
-  return rows && rows.length > 0
-    ? rows[0].id
+  return rows
+    ? rows.insertId
     : console.error("insertNewUser failed.");
 };
 

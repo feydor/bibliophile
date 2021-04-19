@@ -24,6 +24,8 @@
     "morgan": "~1.9.1",
     "mysql2": "^2.2.5",
     "node-fetch": "^2.6.1",
+    "passport": "^0.4.1",
+    "passport-auth0": "^1.4.0",
     "pug": "2.0.0-beta11",
     "sinon": "^9.2.4"
   },

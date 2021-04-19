@@ -77,8 +77,8 @@ router.post(
     body("publishdate").isNumeric().not().isEmpty().trim().escape(),
   ],
   (req, res) => {
-    if (!req.oidc.user.user_metadata.dbid) {
-      throw new Error("updateUserid middleware not running");
+    if (!res.locals.dbid) {
+      throw new Error("checkForUserInDb middleware not running");
     }
 
     const olid = req.params.olid;
@@ -110,8 +110,8 @@ router.delete(
   "/:olid",
   [check("olid").isAlphanumeric().matches(/OL/i)],
   async (req, res) => {
-    if (!req.oidc.user.user_metadata.dbid) {
-      throw new Error("updateUserid middleware is not running");
+    if (!res.locals.dbid) {
+      throw new Error("checkForUserInDb middleware is not running");
     }
 
     const olid = req.params.olid;
@@ -156,6 +156,8 @@ router.delete(
 router.post("/", async function (req, res) {
   if (!req.oidc.user) {
     return new Error("addUser middleware not running");
+  } else if (!res.locals.dbid) {
+    throw console.error("checkForUserInDb middleware not running.");
   }
 
   console.log("req.body: ", req.body);
@@ -201,7 +203,7 @@ router.post("/", async function (req, res) {
   parseApiBookIsbn(book, apibooks);
 
   // store in db
-  await storeBook(book, req.oidc.user.user_metadata.dbid);  
+  await storeBook(book, res.locals.dbid);  
 
   return res.send({
     status: 200,
@@ -215,8 +217,8 @@ router.post("/", async function (req, res) {
  * @example /books/OL151515W
  */
 router.post("/:olid", async (req, res) => {
-  if (!req.oidc.user.user_metadata.dbid) { 
-    throw console.error("updateUserid middleware not running");
+  if (!res.locals.dbid) {
+    throw console.error("checkForUserInDb middleware not running.");
   }
 
   const olid = req.params.olid;
@@ -244,7 +246,7 @@ router.post("/:olid", async (req, res) => {
   console.log(book);
 
   // store in db
-  await storeBook(book, req.oidc.user.user_metadata.dbid);
+  await storeBook(book, res.locals.dbid);
 
   return res.send({ status: 200, statusTxt: "OK", olid: olid });
 });

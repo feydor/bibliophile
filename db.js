@@ -36,7 +36,7 @@ const reset = async () => {
   const last_name = "Sue";
   const email = "atrab@energyce.cyou";
 
-  await clearDb();
+  await clear();
 
   // insert the example user
   query = `INSERT INTO users (id, username, first_name, last_name, email)
