@@ -131,9 +131,14 @@ import * as els from "./eventlisteners.js";
           return response.json();
         };
 
-        fetchReccs().then((reccs) => {
-          // console.log(reccs);
-          const reccsTable = createReccsTable(reccs);
+        fetchReccs().then((res) => {
+          // console.log(res);
+          if (res.status === 406) {
+            // do nothing
+            return;
+          }
+
+          const reccsTable = createReccsTable(res);
           removeAllChildNodes(RECCS_CONTAINER);
           RECCS_CONTAINER.appendChild(reccsTable);
         });

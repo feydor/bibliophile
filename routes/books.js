@@ -27,9 +27,12 @@ router.get("/", async (req, res) => {
     throw console.error("addUser middleware not running.");
   }
 
+  console.log(req.oidc.user.email);
+
   let books = [];
     books = await getUserBooks(req.oidc.user.email);
-  // console.log("GET /books: ", books);
+
+  console.log("GET /books: ", books);
 
   return res.send({
     books: books,
@@ -47,6 +50,9 @@ const getUserBooks = async (username) => {
   let query = `SELECT * FROM books INNER JOIN library ON books.id = library.bookid
               INNER JOIN users ON users.id = library.userid WHERE users.username = ?;`;
   const [rows] = await db.pool.execute(query, [username]);
+
+  console.log("INSIDE getUserBooks: ", rows);
+
   return rows.map((row) => {
     return {
       id: row.bookid,

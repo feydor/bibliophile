@@ -14,15 +14,14 @@ CREATE TABLE library.books (
     publisher VARCHAR(255),
     publish_date VARCHAR(255),
     olid VARCHAR(13) NOT NULL,
-    isbn VARCHAR(13) NOT NULL,
     subject VARCHAR(255),
     coverurl VARCHAR(2083) NOT NULL,
     PRIMARY KEY(id)
 );
 
-INSERT INTO library.books (id, title, author, publisher, publish_date, olid, isbn, subject, coverurl)
-VALUES ('1000', 'Republic', 'Plato', 'Knickerbocker Classics', '2019', 'OL27340218M', '9780785837015', 'Philosophy', 'https://covers.openlibrary.org/b/id/8804312-M.jpg'),
-('1001', 'A Connecticut Yankee in King Arthur''s Court', 'Mark Twain', 'Dover Publications', '2001', 'OL6795491M', '0486415910', 'Time Travel', 'https://covers.openlibrary.org/b/id/313169-M.jpg');
+INSERT INTO library.books (id, title, author, publisher, publish_date, olid, subject, coverurl)
+VALUES ('1000', 'Republic', 'Plato', 'Knickerbocker Classics', '2019', 'OL27340218M', 'Philosophy', 'https://covers.openlibrary.org/b/id/8804312-M.jpg'),
+('1001', 'A Connecticut Yankee in King Arthur''s Court', 'Mark Twain', 'Dover Publications', '2001', 'OL6795491M', 'Time Travel', 'https://covers.openlibrary.org/b/id/313169-M.jpg');
 
 
 CREATE TABLE library.users (
