@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
 
   let books = [];
     books = await getUserBooks(req.oidc.user.email);
-  //console.log("GET /books: ", books);
+  // console.log("GET /books: ", books);
 
   return res.send({
     books: books,

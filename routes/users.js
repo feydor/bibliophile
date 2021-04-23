@@ -2,8 +2,9 @@ const express = require("express");
 // const router = express.Router();
 const db = require("../db");
 
-// psuedo-endpoint to check sql db for pre-existing user, or to add one
-// redirect to '/dashboard' afterwards
+/**
+ * middle ware to check sql db for a user
+ */
 const checkForUserInDb = async (req, res, next) => {
   if (!req.oidc.user) {
     throw console.error("User not logged in to Auth0.");
@@ -13,6 +14,7 @@ const checkForUserInDb = async (req, res, next) => {
 
   if (dbid !== 0) {
     res.locals.dbid = dbid;
+    console.log("PRE-EXISTING USER: ", res.locals);
     next();
   } else {
     // insert new user_metadata
@@ -31,12 +33,16 @@ const isExistingUser = async (email) => {
     email,
   ]);
 
-  console.log(rows);
-  console.log(rows.length);
+  // console.log(rows);
+  // console.log(rows.length);
 
   if (rows && rows.length) {
+    if (rows.id == undefined) {
+      return rows[0].id;
+    }
     return rows.id;
   } else {
+    console.log("returning: ", 0);
     return 0;
   }
 };
